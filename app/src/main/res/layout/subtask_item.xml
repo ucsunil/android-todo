@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/subtask"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp"
+        android:paddingLeft="2dp"
+        android:paddingRight="2dp"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content" />
+    <Switch
+        android:id="@+id/status"
+        android:textOff="@string/not_done"
+        android:textOn="@string/done"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</LinearLayout>

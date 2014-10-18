@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/openCreateTask"
+        android:text="Open Create Task"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/openDisplayTask"
+        android:text="Open Task Display"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/editTaskList"
+        android:text="Edit Task List"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>
