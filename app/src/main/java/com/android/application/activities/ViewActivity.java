@@ -26,6 +26,7 @@ public class ViewActivity extends Activity {
             dataBundle = getIntent().getExtras();
             showSubtaskViewFragment(dataBundle);
         }
+
     }
 
     private void showTaskViewFragment(Bundle dataBundle) {
@@ -45,5 +46,4 @@ public class ViewActivity extends Activity {
             getFragmentManager().beginTransaction().replace(R.id.content, subtaskViewFragment).commit();
         }
     }
-
 }

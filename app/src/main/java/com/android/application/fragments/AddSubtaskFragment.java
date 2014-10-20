@@ -2,6 +2,7 @@ package com.android.application.fragments;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import com.android.application.GlobalData;
 import com.android.application.R;
 import com.android.application.adapters.SubtaskAdapter;
 import com.android.application.datamodels.Subtask;
+import com.android.application.storage.DataProvider;
 
 import java.util.ArrayList;
 
@@ -47,6 +49,7 @@ public class AddSubtaskFragment extends Fragment implements View.OnClickListener
         taskBundle = getArguments();
         subtasks = new ArrayList<Subtask>();
         subtaskAdapter = new SubtaskAdapter(getActivity(), subtasks);
+        initializeAdapter();
     }
 
     @Override
@@ -81,6 +84,39 @@ public class AddSubtaskFragment extends Fragment implements View.OnClickListener
         }
     }
 
+    /**
+     * This method loads the subtasks that may have already been created for this task
+     */
+    private void initializeAdapter() {
+        String selection = "task_id=?";
+        String[] selectionArgs = {String.valueOf(taskBundle.getInt("task_id"))};
+        Cursor cursor = getActivity().getContentResolver().query(DataProvider.SUBTASKS_URI, null, selection, selectionArgs, null);
+        if(!cursor.moveToFirst() || cursor.getCount() <= 0) {
+            // Means there are no elements for this view
+            return;
+        }
+        cursor.moveToFirst();
+        for(int i = 0; i < cursor.getCount(); i++) {
+            Subtask subtask = new Subtask();
+            subtask.setSubtaskId(cursor.getInt(0));
+            subtask.setTaskId(cursor.getInt(1));
+            subtask.setSubtask(cursor.getString(2));
+            boolean bool = (cursor.getInt(3) == 1) ? true : false;
+            subtask.setHasNote(bool);
+            bool = (cursor.getInt(4) == 1) ? true : false;
+            subtask.setStatus(bool);
+            subtask.setDescription(cursor.getString(5));
+            subtasks.add(subtask);
+
+            if(cursor.isLast()) {
+                break;
+            }
+            cursor.moveToNext();
+        }
+        subtaskAdapter.notifyDataSetChanged();
+    }
+
+
     private boolean isDataCorrect() {
         String titleText = title.getText().toString();
 
@@ -109,6 +145,7 @@ public class AddSubtaskFragment extends Fragment implements View.OnClickListener
         if(subtasks.size() == 0) {
             return;
         }
+        taskBundle.putBoolean("subtasks", true);
         taskBundle.putParcelableArrayList("subtasks_list", subtasks);
         Intent intent = new Intent();
         intent.putExtras(taskBundle);

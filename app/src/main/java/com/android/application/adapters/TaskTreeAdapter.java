@@ -3,7 +3,6 @@ package com.android.application.adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.DataSetObserver;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,16 +30,6 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
         this.context = context;
         this.inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.tasks = tasks;
-    }
-
-    @Override
-    public void registerDataSetObserver(DataSetObserver dataSetObserver) {
-
-    }
-
-    @Override
-    public void unregisterDataSetObserver(DataSetObserver dataSetObserver) {
-
     }
 
     @Override
@@ -89,24 +78,6 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
         TextView timeView = (TextView) convertView.findViewById(R.id.timeView);
         timeView.setText(((Task)getGroup(groupPosition)).getTime());
         TextView taskName = (TextView) convertView.findViewById(R.id.taskName);
-        /*taskName.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                Intent intent = new Intent(context, ViewActivity.class);
-                intent.putExtra("viewWhat", "viewTask");
-
-                Bundle bundle = new Bundle();
-                Task task = (Task)getGroup(position);
-                bundle.putString("date", task.getDate());
-                bundle.putString("time", task.getTime());
-                bundle.putString("task", task.getTask());
-                bundle.putString("description", task.getDescription());
-                intent.putExtras(bundle);
-
-                context.startActivity(intent);
-                return true;
-            }
-        });*/
         taskName.setText(((Task)getGroup(groupPosition)).getTask());
         CheckBox status = (CheckBox) convertView.findViewById(R.id.status);
         status.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

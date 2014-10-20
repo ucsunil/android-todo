@@ -20,4 +20,8 @@ public class GlobalData extends Application {
     public static final String EMPTY_TITLE = "The Title field is empty. Please set its value before continuing";
     public static final String NO_TASKS = "There are no tasks to display at this time!";
     public static final String NO_DESCRIPTION = "There is no description available for this task";
+    public static final String CONFIRM_COMPLETE = "Confirm task complete";
+    public static final String CONFIRM_COMPLETE_MESSAGE = "Are you sure you want to mark this task " +
+            "as completed? This will mark any subtask within this task as completed as well and you will " +
+            "not be able to edit it in the future.";
 }

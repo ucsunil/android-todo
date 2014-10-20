@@ -36,9 +36,10 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
     private final int TIME_CODE = 2;
     private final int NOTE_CODE = 3;
     private final int SUBTASK_CODE = 4;
-    private boolean noteFlag = false, subtasksFlag = false, completed = false;
+    private boolean updatedFlag = false, noteFlag = false, subtasksFlag = false, completed = false;
     Bundle notesBundle, taskBundle;
     private int taskId = -1;
+    private int EDITED_CODE = 5;
 
     AddSubtaskFragment addSubtaskFragment;
 
@@ -125,6 +126,11 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
             if(isDataCorrect()) {
                 saveData();
             }
+            Intent intent = new Intent();
+            intent.putExtra("edited", updatedFlag);
+            intent.putExtra("task_id", taskBundle.getInt("task_id"));
+            getActivity().setResult(EDITED_CODE, intent);
+            getActivity().finish();
         } else if(view.getId() == R.id.addNote) {
             if(noteFlag) {
                 showAddNoteFragment(notesBundle);
@@ -133,6 +139,8 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
             }
         } else if(view.getId() == R.id.addSubtask) {
             showAddSubTaskFragment();
+        } else if(view.getId() == R.id.cancel) {
+            getActivity().finish();
         }
     }
 
@@ -175,6 +183,10 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
         noteFragment.show(getActivity().getFragmentManager(), "noteFragment");
     }
 
+    /**
+     * Set the date from the Calendar Fragment
+     * @param intent - the intent returned form the Calendar Fragment
+     */
     private void setDate(Intent intent) {
         int date = intent.getIntExtra("date", 0);
         int month = intent.getIntExtra("month", 0);
@@ -249,7 +261,7 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
             Toast.makeText(getActivity(), GlobalData.EMPTY_TIME, Toast.LENGTH_LONG).show();
         } else if(TextUtils.isEmpty(date) && !TextUtils.isEmpty(time) && !TextUtils.isEmpty(task)) {
             Toast.makeText(getActivity(), GlobalData.EMPTY_DATE, Toast.LENGTH_LONG).show();
-        } else if(!TextUtils.isEmpty(date) && TextUtils.isEmpty(time) && TextUtils.isEmpty(task)) {
+        } else if(!TextUtils.isEmpty(date) && !TextUtils.isEmpty(time) && !TextUtils.isEmpty(task)) {
             return true;
         }
         return false;
@@ -260,6 +272,19 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
         String time = timeText.getText().toString();
         String task = titleText.getText().toString();
         String taskDescription = descriptionText.getText().toString();
+
+        // Verify that the data actually changed before updating the database record
+        if(date.equals(taskBundle.getString("date")) && time.equals(taskBundle.getString("time"))
+                && task.equals(taskBundle.getString("task")) && taskDescription.equals(taskBundle.getString("description"))
+                && (noteFlag == taskBundle.getBoolean("has_note")) && (completed == taskBundle.getBoolean("task_status"))
+                && (subtasksFlag == taskBundle.getBoolean("subtasks"))) {
+            // Means that no information has changed
+            return;
+        } else {
+            // Means the task item is edited
+            updatedFlag = true;
+            subtasksFlag = taskBundle.getBoolean("subtasks");
+        }
 
         ContentValues values = new ContentValues();
         values.put("date", date);
@@ -277,10 +302,11 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
             values.put("subtasks", 0);
         }
         if(completed) {
-            values.put("status", 1);
+            values.put("task_status", 1);
         } else {
-            values.put("status", 0);
+            values.put("task_status", 0);
         }
+
         saveSubtasksData();
 
         // Updating the table data
@@ -298,6 +324,7 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
         ContentValues[] values = new ContentValues[subtasks.size()];
 
         for(int i = 0; i < subtasks.size(); i++) {
+            values[i] = new ContentValues();
             values[i].put("task_id", taskId);
 
             Subtask subtask = subtasks.get(i);

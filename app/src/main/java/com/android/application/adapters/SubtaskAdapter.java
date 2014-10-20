@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -45,12 +46,18 @@ public class SubtaskAdapter extends BaseAdapter {
     public View getView(int position, View view, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.subtask_item, parent,false);
-        Subtask subtask = subtasks.get(position);
+        final Subtask subtask = subtasks.get(position);
 
         TextView title = (TextView) rowView.findViewById(R.id.subtask);
         title.setText(subtask.getSubtask());
         Switch status = (Switch) rowView.findViewById(R.id.status);
         status.setChecked(subtask.isStatus());
+        status.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                subtask.setStatus(checked);
+            }
+        });
         return rowView;
     }
 }

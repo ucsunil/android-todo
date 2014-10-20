@@ -16,7 +16,7 @@ import android.net.Uri;
 public class DataProvider extends ContentProvider {
 
     private DatabaseHelper db = null;
-    private static final String AUTHORITY = "com.android.application.storage.DataProvider";
+    public static final String AUTHORITY = "com.android.application.storage.DataProvider";
 
     public static final Uri TASKS_URI =
             Uri.parse("content://com.android.application.storage.DataProvider/tasks");
@@ -117,11 +117,16 @@ public class DataProvider extends ContentProvider {
         switch(match) {
             case 1:
                 qb.setTables(TABLE_TASKS);
-                cursor = qb.query(db.getReadableDatabase(), null, null, null, null, null, null);
+                cursor = qb.query(db.getReadableDatabase(), projection, selection, selectionArgs, null, null, sort);
+                return cursor;
+            case 2:
+                qb.setTables(TABLE_SUBTASKS);
+                cursor = qb.query(db.getReadableDatabase(), projection, selection, selectionArgs, null, null, sort);
                 return cursor;
             default:
                 // Do nothing
         }
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
         throw new SQLException("The data being requested is not valid");
     }
 
@@ -140,10 +145,10 @@ public class DataProvider extends ContentProvider {
                 rowId = db.getWritableDatabase().insert(TABLE_TASKS, null, contentValues);
                 break;
             case SUBTASKS_TABLE:
-                db.getWritableDatabase().insert(TABLE_SUBTASKS, null, contentValues);
+                rowId = db.getWritableDatabase().insert(TABLE_SUBTASKS, null, contentValues);
                 break;
             case NOTES_TABLE:
-                db.getWritableDatabase().insert(TABLE_NOTES, null, contentValues);
+                rowId = db.getWritableDatabase().insert(TABLE_NOTES, null, contentValues);
                 break;
             default:
                 // Do nothing
@@ -152,6 +157,7 @@ public class DataProvider extends ContentProvider {
             throw new SQLException("Error in writing to database!!");
         } else if(rowId > 0) {
             insertedPosition = ContentUris.withAppendedId(uri, rowId);
+            getContext().getContentResolver().notifyChange(insertedPosition, null);
         }
         return insertedPosition;
     }
@@ -162,8 +168,29 @@ public class DataProvider extends ContentProvider {
     }
 
     @Override
-    public int update(Uri uri, ContentValues contentValues, String s, String[] strings) {
-        return 0;
+    public int update(Uri uri, ContentValues values, String where, String[] selectionArgs) {
+        Uri updatedPosition = null;
+        int match = MATCHER.match(uri);
+        int count = 0;
+        switch (match) {
+            case TASKS_TABLE:
+                count = db.getWritableDatabase().update(TABLE_TASKS, values, where, selectionArgs);
+                break;
+            case SUBTASKS_TABLE:
+                count = db.getWritableDatabase().update(TABLE_SUBTASKS, values, where, selectionArgs);
+                break;
+            case NOTES_TABLE:
+                count = db.getWritableDatabase().update(TABLE_NOTES, values, where, selectionArgs);
+                break;
+            default:
+                // Do nothing
+        }
+        if(count <= 0) {
+            throw new SQLException("Error in updating");
+        } else {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return count;
     }
 
     @Override
