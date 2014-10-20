@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.application.GlobalData;
@@ -26,7 +27,8 @@ import java.util.ArrayList;
  */
 public class AddSubtaskFragment extends Fragment implements View.OnClickListener {
 
-    Button addNote, save, add;
+    TextView header;
+    Button addNote, save, add, discard;
     ArrayList<Subtask> subtasks;
     SubtaskAdapter subtaskAdapter;
     EditText title, description;
@@ -47,9 +49,13 @@ public class AddSubtaskFragment extends Fragment implements View.OnClickListener
         super.onCreate(savedInstanceState);
 
         taskBundle = getArguments();
-        subtasks = new ArrayList<Subtask>();
-        subtaskAdapter = new SubtaskAdapter(getActivity(), subtasks);
-        initializeAdapter();
+        // subtasks = new ArrayList<Subtask>();
+        // subtaskAdapter = new SubtaskAdapter(getActivity(), subtasks);
+        if(taskBundle.getParcelableArrayList("subtasks_list") != null) {
+            initializeSubtasksFromList();
+        } else {
+            initializeAdapter();
+        }
     }
 
     @Override
@@ -60,6 +66,8 @@ public class AddSubtaskFragment extends Fragment implements View.OnClickListener
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        header = (TextView) view.findViewById(R.id.header);
+        header.setText(R.string.add_subtask);
         title = (EditText) view.findViewById(R.id.taskTitle);
         add = (Button) view.findViewById(R.id.add);
         add.setOnClickListener(this);
@@ -67,6 +75,8 @@ public class AddSubtaskFragment extends Fragment implements View.OnClickListener
         addNote = (Button) view.findViewById(R.id.addNote);
         save = (Button) view.findViewById(R.id.save);
         save.setOnClickListener(this);
+        discard = (Button) view.findViewById(R.id.discard);
+        discard.setOnClickListener(this);
 
         listView = (ListView) view.findViewById(android.R.id.list);
         listView.setAdapter(subtaskAdapter);
@@ -81,13 +91,23 @@ public class AddSubtaskFragment extends Fragment implements View.OnClickListener
         } else if(view.getId() == R.id.save) {
             saveSubtasksList();
             showEditTaskFragment();
+        } else if(view.getId() == R.id.discard) {
+            showEditTaskFragment();
         }
+    }
+
+    private void initializeSubtasksFromList() {
+        subtasks = taskBundle.getParcelableArrayList("subtasks_list");
+        subtaskAdapter = new SubtaskAdapter(getActivity(), subtasks);
+        subtaskAdapter.notifyDataSetChanged();
     }
 
     /**
      * This method loads the subtasks that may have already been created for this task
      */
     private void initializeAdapter() {
+        subtasks = new ArrayList<Subtask>();
+        subtaskAdapter = new SubtaskAdapter(getActivity(), subtasks);
         String selection = "task_id=?";
         String[] selectionArgs = {String.valueOf(taskBundle.getInt("task_id"))};
         Cursor cursor = getActivity().getContentResolver().query(DataProvider.SUBTASKS_URI, null, selection, selectionArgs, null);
@@ -115,7 +135,6 @@ public class AddSubtaskFragment extends Fragment implements View.OnClickListener
         }
         subtaskAdapter.notifyDataSetChanged();
     }
-
 
     private boolean isDataCorrect() {
         String titleText = title.getText().toString();

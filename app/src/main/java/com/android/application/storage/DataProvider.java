@@ -163,8 +163,27 @@ public class DataProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(Uri uri, String s, String[] strings) {
-        return 0;
+    public int delete(Uri uri, String where, String[] whereArgs) {
+        int match = MATCHER.match(uri);
+        int count = 0;
+        switch (match) {
+            case TASKS_TABLE:
+                count = db.getWritableDatabase().delete(TABLE_TASKS, where, whereArgs);
+                break;
+            case SUBTASKS_TABLE:
+                count = db.getWritableDatabase().delete(TABLE_SUBTASKS, where, whereArgs);
+                break;
+            case NOTES_TABLE:
+                count = db.getWritableDatabase().delete(TABLE_NOTES, where, whereArgs);
+                break;
+
+        }
+        if(count < 0) {
+            throw new SQLException("Error while deleting!!");
+        } else {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return count;
     }
 
     @Override
@@ -186,7 +205,7 @@ public class DataProvider extends ContentProvider {
                 // Do nothing
         }
         if(count <= 0) {
-            throw new SQLException("Error in updating");
+            throw new SQLException("Error in updating!!");
         } else {
             getContext().getContentResolver().notifyChange(uri, null);
         }

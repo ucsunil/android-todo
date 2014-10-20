@@ -3,18 +3,23 @@ package com.android.application.adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.android.application.R;
 import com.android.application.activities.ViewActivity;
+import com.android.application.datamodels.Subtask;
 import com.android.application.datamodels.Task;
+import com.android.application.storage.DataProvider;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,7 +44,8 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return 0;
+        ArrayList<Subtask> children = getSubtaskListForGroup(groupPosition);
+        return children.size();
     }
 
     @Override
@@ -48,23 +54,27 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
     }
 
     @Override
-    public Object getChild(int i, int i2) {
-        return null;
+    public Object getChild(int groupPosition, int childPosition) {
+        ArrayList<Subtask> children = getSubtaskListForGroup(groupPosition);
+        return children.get(childPosition);
     }
 
     @Override
-    public long getGroupId(int i) {
-        return 0;
+    public long getGroupId(int groupPosition) {
+        Task task = tasks.get(groupPosition);
+        return task.getTaskId();
     }
 
     @Override
-    public long getChildId(int i, int i2) {
-        return 0;
+    public long getChildId(int groupPosition, int childPosition) {
+        ArrayList<Subtask> children = getSubtaskListForGroup(groupPosition);
+        Subtask subtask = children.get(childPosition);
+        return subtask.getSubtaskId();
     }
 
     @Override
     public boolean hasStableIds() {
-        return false;
+        return true;
     }
 
     @Override
@@ -95,43 +105,29 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
     }
 
     @Override
-    public View getChildView(int i, int i2, boolean b, View view, ViewGroup viewGroup) {
-        return null;
+    public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
+                             View convertView, ViewGroup parent) {
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        if(convertView == null) {
+            convertView = inflater.inflate(R.layout.subtask_item, parent, false);
+        }
+        Subtask subtask = (Subtask) getChild(groupPosition, childPosition);
+        TextView title = (TextView) convertView.findViewById(R.id.subtask);
+        title.setText(subtask.getSubtask());
+        Switch status = (Switch) convertView.findViewById(R.id.status);
+        status.setChecked(subtask.isStatus());
+        status.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                // subtask.setStatus(checked);
+            }
+        });
+        return convertView;
     }
 
     @Override
-    public boolean isChildSelectable(int i, int i2) {
-        return false;
-    }
-
-    @Override
-    public boolean areAllItemsEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return false;
-    }
-
-    @Override
-    public void onGroupExpanded(int groupPosition) {
-        super.onGroupExpanded(groupPosition);
-    }
-
-    @Override
-    public void onGroupCollapsed(int groupPosition) {
-        super.onGroupCollapsed(groupPosition);
-    }
-
-    @Override
-    public long getCombinedChildId(long l, long l2) {
-        return 0;
-    }
-
-    @Override
-    public long getCombinedGroupId(long l) {
-        return 0;
+    public boolean isChildSelectable(int groupPosition, int childPosition) {
+        return true;
     }
 
     @Override
@@ -143,5 +139,35 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
             return true;
         }
         return false;
+    }
+
+    private ArrayList<Subtask> getSubtaskListForGroup(int groupPosition) {
+        Task task = tasks.get(groupPosition);
+        int taskId = task.getTaskId();
+        ArrayList<Subtask> subtasks = new ArrayList<Subtask>();
+
+        String selection = "task_id=?";
+        String[] selectionArgs = {String.valueOf(taskId)};
+        Cursor cursor = context.getContentResolver().query(DataProvider.SUBTASKS_URI, null, selection, selectionArgs, null);
+
+        cursor.moveToFirst();
+        for(int i = 0; i < cursor.getCount(); i++) {
+            Subtask subtask = new Subtask();
+            subtask.setSubtaskId(cursor.getInt(0));
+            subtask.setTaskId(cursor.getInt(1));
+            subtask.setSubtask(cursor.getString(2));
+            boolean bool = (cursor.getInt(3) == 1) ? true : false;
+            subtask.setHasNote(bool);
+            bool = (cursor.getInt(4) == 1) ? true : false;
+            subtask.setStatus(bool);
+            subtask.setDescription(cursor.getString(5));
+            subtasks.add(subtask);
+
+            if(cursor.isLast()) {
+                break;
+            }
+            cursor.moveToNext();
+        }
+        return subtasks;
     }
 }

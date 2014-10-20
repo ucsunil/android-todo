@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 public class EditTaskFragment extends Fragment implements View.OnClickListener {
 
     TextView header;
+    Switch status;
     private Button calendar, clock, save, cancel;
     private Button addNote, editNote, addSubtask;
     private EditText dateText, timeText, titleText, descriptionText;
@@ -67,6 +69,8 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         header = (TextView) view.findViewById(R.id.header);
+        status = (Switch) view.findViewById(R.id.status);
+        status.setVisibility(View.GONE);
         header.setText(R.string.edit_task);
         calendar = (Button) view.findViewById(R.id.calendar);
         calendar.setOnClickListener(this);
@@ -316,6 +320,7 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
     }
 
     private void saveSubtasksData() {
+        deleteSubtasksListBeforeSave();
         if(taskBundle.getParcelableArrayList("subtasks_list") == null) {
             // There are no subtasks to save
             return;
@@ -341,6 +346,12 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
 
     private String getNotesForTask() {
         return null;
+    }
+
+    private void deleteSubtasksListBeforeSave() {
+        String where = "task_id=?";
+        String[] whereArgs = {String.valueOf(taskId)};
+        getActivity().getContentResolver().delete(DataProvider.SUBTASKS_URI, where, whereArgs);
     }
 
 }

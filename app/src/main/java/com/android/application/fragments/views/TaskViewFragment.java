@@ -153,7 +153,7 @@ public class TaskViewFragment extends Fragment implements View.OnClickListener, 
             int status = subtask.isStatus() ? 1 : 0;
             values[i].put("subtask_status", status);
             operations.add(ContentProviderOperation.newUpdate(DataProvider.SUBTASKS_URI)
-                    .withValue("subtask_status", status).withSelection(selection, selectionArgs)
+                    .withValues(values[i]).withSelection(selection, selectionArgs)
                     .withYieldAllowed(false).build());
         }
         try {
