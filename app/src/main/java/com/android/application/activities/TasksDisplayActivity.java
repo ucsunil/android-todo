@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ExpandableListView;
@@ -35,6 +34,7 @@ public class TasksDisplayActivity extends Activity implements
     DataProviderObserver observer;
 
     private int positionBeingViewed = -1, taskIdPositionBeingViewed = -1;
+    private final int TASK_COMPLETE_CONFIRMED = 2;
     private final int EDITED_TASK = 5;
 
     @Override
@@ -97,13 +97,12 @@ public class TasksDisplayActivity extends Activity implements
 
     @Override
     public boolean onGroupClick(ExpandableListView expandableListView, View view, int groupPosition, long id) {
-        Toast.makeText(this, "Something", Toast.LENGTH_SHORT).show();
         return false;
     }
 
     @Override
     public void onGroupCollapse(int groupPosition) {
-
+        lastExpandedGroupPosition = -1;
     }
 
     @Override
@@ -116,10 +115,8 @@ public class TasksDisplayActivity extends Activity implements
 
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
-        Toast.makeText(this, "Hello", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, ViewActivity.class);
         intent.putExtra("viewWhat", "viewTask");
-
         Bundle bundle = new Bundle();
         Task task = tasks.get(position);
         positionBeingViewed = position;
@@ -148,12 +145,10 @@ public class TasksDisplayActivity extends Activity implements
                     // Then we need to update the data for that task
                     String selection = "task_id=?";
                     String[] selectionArgs = {String.valueOf(intent.getIntExtra("task_id", -1))};
-                    Log.v("", "SelectionArgs = " + selectionArgs);
                     Cursor cursor = getContentResolver().query(DataProvider.TASKS_URI, null, selection,
                                                             selectionArgs, null);
                     cursor.moveToFirst();
                     boolean bool;
-                    Log.v("TAG", "Hit here");
                     Task task = new Task();
                     task.setTaskId(cursor.getInt(0));
                     task.setDate(cursor.getString(1));
@@ -170,6 +165,59 @@ public class TasksDisplayActivity extends Activity implements
                     taskTreeAdapter.notifyDataSetChanged();
                 }
             }
+        } else if(resultCode == TASK_COMPLETE_CONFIRMED) {
+            int index = 0;
+            for (Task task : tasks) {
+                if(task.getTaskId() == intent.getIntExtra("task_id", -1)) {
+                    break;
+                }
+                ++index;
+            }
+            String selection = "task_id=?";
+            String[] selectionArgs = {String.valueOf(intent.getIntExtra("task_id", -1))};
+
+            Cursor cursor = getContentResolver().query(DataProvider.TASKS_URI, null, selection,
+                    selectionArgs, null);
+            cursor.moveToFirst();
+            boolean bool;
+            Task task = new Task();
+            task.setTaskId(cursor.getInt(0));
+            task.setDate(cursor.getString(1));
+            task.setTime(cursor.getString(2));
+            task.setTask(cursor.getString(3));
+            bool = cursor.getInt(4) == 0 ? false : true;
+            task.setHasNote(bool);
+            bool = cursor.getInt(5) == 0 ? false : true;
+            task.setHasSubtasks(bool);
+            bool = cursor.getInt(6) == 0? false : true;
+            task.setStatus(bool);
+            task.setDescription(cursor.getString(7));
+            tasks.set(index, task);
+            taskTreeAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if(lastExpandedGroupPosition != -1) {
+            // Collapse this group so that when the activity restarts, the children at
+            // this group position are updated automatically
+            int tempPosition = lastExpandedGroupPosition;
+            tasksTree.collapseGroup(lastExpandedGroupPosition);
+            lastExpandedGroupPosition = tempPosition;
+        }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        if(lastExpandedGroupPosition != -1) {
+            // expand the children at this position
+            // this automatically refreshes the children at this position
+            tasksTree.expandGroup(lastExpandedGroupPosition);
         }
     }
 

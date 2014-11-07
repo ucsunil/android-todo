@@ -50,7 +50,7 @@ public class SubtaskAdapter extends BaseAdapter {
 
         TextView title = (TextView) rowView.findViewById(R.id.subtask);
         title.setText(subtask.getSubtask());
-        Switch status = (Switch) rowView.findViewById(R.id.status);
+        final Switch status = (Switch) rowView.findViewById(R.id.status);
         status.setChecked(subtask.isStatus());
         status.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

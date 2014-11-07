@@ -1,6 +1,6 @@
 package com.android.application.adapters;
 
-import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -27,11 +27,11 @@ import java.util.List;
  */
 public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.OnLongClickListener {
 
-    private Activity context;
+    private Context context;
     private LayoutInflater inflater;
     private List<Task> tasks;
 
-    public TaskTreeAdapter(Activity context, List<Task> tasks) {
+    public TaskTreeAdapter(Context context, List<Task> tasks) {
         this.context = context;
         this.inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.tasks = tasks;
@@ -90,6 +90,11 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
         TextView taskName = (TextView) convertView.findViewById(R.id.taskName);
         taskName.setText(((Task)getGroup(groupPosition)).getTask());
         CheckBox status = (CheckBox) convertView.findViewById(R.id.status);
+        boolean currentStatus = ((Task) getGroup(groupPosition)).getStatus();
+        if(currentStatus) {
+            status.setChecked(true);
+            status.setEnabled(false);
+        }
         status.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
@@ -111,15 +116,21 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
         if(convertView == null) {
             convertView = inflater.inflate(R.layout.subtask_item, parent, false);
         }
-        Subtask subtask = (Subtask) getChild(groupPosition, childPosition);
+        final Subtask subtask = (Subtask) getChild(groupPosition, childPosition);
         TextView title = (TextView) convertView.findViewById(R.id.subtask);
         title.setText(subtask.getSubtask());
-        Switch status = (Switch) convertView.findViewById(R.id.status);
+        final Switch status = (Switch) convertView.findViewById(R.id.status);
         status.setChecked(subtask.isStatus());
         status.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                // subtask.setStatus(checked);
+                subtask.setStatus(checked);
+                ContentValues values = new ContentValues();
+                int value = checked ? 1 : 0;
+                values.put("subtask_status", value);
+                String where = "subtask_id=?";
+                String[] whereArgs = {String.valueOf(subtask.getSubtaskId())};
+                context.getContentResolver().update(DataProvider.SUBTASKS_URI, values, where, whereArgs);
             }
         });
         return convertView;
@@ -170,4 +181,5 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
         }
         return subtasks;
     }
+
 }

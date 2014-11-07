@@ -1,17 +1,19 @@
 package com.android.application.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.android.application.R;
 import com.android.application.fragments.views.SubtaskViewFragment;
 import com.android.application.fragments.views.TaskViewFragment;
 
-public class ViewActivity extends Activity {
+public class ViewActivity extends Activity implements TaskViewFragment.OnTaskCompleteListener {
 
     TaskViewFragment taskViewFragment;
     SubtaskViewFragment subtaskViewFragment;
     Bundle dataBundle;
+    private final int TASK_COMPLETE_CONFIRMED = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,5 +47,12 @@ public class ViewActivity extends Activity {
         if(!subtaskViewFragment.isVisible()) {
             getFragmentManager().beginTransaction().replace(R.id.content, subtaskViewFragment).commit();
         }
+    }
+
+    @Override
+    public void onTaskComplete(int taskId) {
+        Intent intent = new Intent();
+        intent.putExtra("task_id", taskId);
+        setResult(TASK_COMPLETE_CONFIRMED, intent);
     }
 }

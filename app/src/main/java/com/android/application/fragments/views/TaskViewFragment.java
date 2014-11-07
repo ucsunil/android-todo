@@ -1,5 +1,6 @@
 package com.android.application.fragments.views;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.ContentProviderOperation;
 import android.content.ContentValues;
@@ -41,12 +42,24 @@ public class TaskViewFragment extends Fragment implements View.OnClickListener, 
     SubtaskAdapter adapter;
     Switch taskStatus;
     private int taskId;
-    private int CONFIRMED_CODE = 1;
+    private final int CONFIRMED_CODE = 1;
+    private final int NOT_CONFIRMED_CODE = 2;
+    private OnTaskCompleteListener taskCompleteListener;
 
     public static TaskViewFragment getInstance(Bundle taskBundle) {
         TaskViewFragment taskViewFragment = new TaskViewFragment();
         taskViewFragment.setArguments(taskBundle);
         return taskViewFragment;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            taskCompleteListener = (OnTaskCompleteListener) activity;
+        } catch (ClassCastException ex) {
+            throw new ClassCastException("Calling activity must implement OnTaskCompleteListener!!");
+        }
     }
 
     @Override
@@ -76,6 +89,12 @@ public class TaskViewFragment extends Fragment implements View.OnClickListener, 
         ok = (Button) view.findViewById(R.id.ok);
         ok.setOnClickListener(this);
         taskStatus = (Switch) view.findViewById(R.id.taskStatus);
+        boolean status = taskBundle.getBoolean("task_status");
+        if(status) {
+            taskStatus.setChecked(true);
+            taskStatus.setEnabled(false);
+            edit.setEnabled(false);
+        }
         taskStatus.setOnCheckedChangeListener(this);
 
         dateView.setText(taskBundle.getString("date"));
@@ -173,19 +192,27 @@ public class TaskViewFragment extends Fragment implements View.OnClickListener, 
     }
 
     private void showAlertMessage() {
-        TaskCompleteDialog dialog = TaskCompleteDialog.newInstance();
+        TaskCompleteDialog dialog = TaskCompleteDialog.newInstance(taskBundle);
         dialog.setTargetFragment(this, CONFIRMED_CODE);
         dialog.show(getActivity().getFragmentManager(), "alertDialog");
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if(requestCode == resultCode) {
-            if(resultCode == CONFIRMED_CODE) {
-                taskStatus.setChecked(true);
-                taskStatus.setEnabled(false);
-                edit.setEnabled(false);
-            }
+        if(resultCode == CONFIRMED_CODE) {
+            taskCompleteListener.onTaskComplete(taskId);
+            taskBundle.putBoolean("task_status", true);
+            subtasks.clear();
+            initializeAdapter();
+            taskStatus.setChecked(true);
+            taskStatus.setEnabled(false);
+            edit.setEnabled(false);
+        } else if(resultCode == NOT_CONFIRMED_CODE) {
+            taskStatus.setChecked(false);
         }
+    }
+
+    public interface OnTaskCompleteListener {
+        public void onTaskComplete(int taskId);
     }
 }
