@@ -111,18 +111,18 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
         if(currentStatus) {
             status.setChecked(true);
             status.setEnabled(false);
-            taskName.setTextColor(Color.GREEN);
-            dateView.setTextColor(Color.GREEN);
-            timeView.setTextColor(Color.GREEN);
+            taskName.setTextColor(Color.GRAY);
+            dateView.setTextColor(Color.GRAY);
+            timeView.setTextColor(Color.GRAY);
         }
         status.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
                 if(checked) {
                     ((Task)getGroup(position)).setStatus(true);
-                    taskName.setTextColor(Color.GREEN);
-                    dateView.setTextColor(Color.GREEN);
-                    timeView.setTextColor(Color.GREEN);
+                    taskName.setTextColor(Color.GRAY);
+                    dateView.setTextColor(Color.GRAY);
+                    timeView.setTextColor(Color.GRAY);
                 } else if(!checked) {
                     ((Task)getGroup(position)).setStatus(false);
                 }
@@ -229,7 +229,7 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
         Date now = new Date();
         Log.d("TTA", now.toString());
         Log.d("TTA", now.before(taskDate)+"");
-        return now.before(taskDate);
+        return now.after(taskDate);
     }
 
 }

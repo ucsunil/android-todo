@@ -10,9 +10,12 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.text.TextUtils;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ListView;
@@ -24,6 +27,7 @@ import com.android.application.R;
 import com.android.application.adapters.SubtaskAdapter;
 import com.android.application.datamodels.Subtask;
 import com.android.application.fragments.EditTaskFragment;
+import com.android.application.helpers.ActionModeListener;
 import com.android.application.helpers.TaskCompleteDialog;
 import com.android.application.storage.DataProvider;
 
@@ -45,6 +49,7 @@ public class TaskViewFragment extends Fragment implements View.OnClickListener, 
     private final int CONFIRMED_CODE = 1;
     private final int NOT_CONFIRMED_CODE = 2;
     private OnTaskCompleteListener taskCompleteListener;
+    private int actionModeFlag = 1;
 
     public static TaskViewFragment getInstance(Bundle taskBundle) {
         TaskViewFragment taskViewFragment = new TaskViewFragment();
@@ -107,6 +112,15 @@ public class TaskViewFragment extends Fragment implements View.OnClickListener, 
         }
         listView = (ListView) view.findViewById(R.id.subtasksList);
         listView.setAdapter(adapter);
+        listView.setMultiChoiceModeListener(new ActionModeListener(getActivity(), this, listView, actionModeFlag));
+        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        listView.setOnItemLongClickListener(new ListView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
+                listView.setItemChecked(position, true);
+                return true;
+            }
+        });
         initializeAdapter();
     }
 
@@ -211,6 +225,37 @@ public class TaskViewFragment extends Fragment implements View.OnClickListener, 
         } else if(resultCode == NOT_CONFIRMED_CODE) {
             taskStatus.setChecked(false);
         }
+    }
+
+    public boolean performActions(MenuItem item) {
+        SparseBooleanArray checked = listView.getCheckedItemPositions();
+
+        switch (item.getItemId()) {
+            case R.id.delete:
+                int count = 0;
+                ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+                String selection = "subtask_id=?";
+                for (int i = 0; i < checked.size(); i++) {
+                    int position = checked.keyAt(i);
+                    Subtask subtask = subtasks.get(position - count);
+                    int subtaskId = subtask.getSubtaskId();
+                    String[] selectionArgs = {String.valueOf(subtaskId)};
+                    subtasks.remove(position - count);
+                    adapter.notifyDataSetChanged();
+                    count++;
+                    operations.add(ContentProviderOperation.newDelete(DataProvider.SUBTASKS_URI)
+                            .withSelection(selection, selectionArgs).withYieldAllowed(false).build());
+                }
+                try {
+                    getActivity().getContentResolver().applyBatch(DataProvider.AUTHORITY, operations);
+                } catch (OperationApplicationException ex) {
+                    ex.printStackTrace();
+                } catch (RemoteException ex) {
+                    ex.printStackTrace();
+                }
+                return true;
+        }
+        return false;
     }
 
     public interface OnTaskCompleteListener {

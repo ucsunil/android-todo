@@ -158,6 +158,7 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
     private void setDate(Intent intent) {
         int date = intent.getIntExtra("date", 0);
         int month = intent.getIntExtra("month", 0);
+        month = month + 1;
         int year = intent.getIntExtra("year", 0);
 
         if(date < 10 && month < 10) {

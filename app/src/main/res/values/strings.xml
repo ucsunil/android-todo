@@ -36,4 +36,5 @@
     <string name="title_activity_view">View Activity</string>
     <string name="task">Task</string>
     <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
 </resources>
