@@ -109,9 +109,8 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
         } else if(view.getId() == R.id.save) {
             if(isDataCorrect()) {
                 saveData();
+                goBack();
             }
-            // test();
-            goBack();
         } else if(view.getId() == R.id.addNote) {
             showAddNoteFragment();
         } else if(view.getId() == R.id.cancel) {
@@ -162,16 +161,16 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
         int year = intent.getIntExtra("year", 0);
 
         if(date < 10 && month < 10) {
-            dateText.setText(new StringBuilder().append("0").append(date).append("/").
-                    append("0").append(month).append("/").append(year).toString());
-        } else if(date < 10 && month >= 10){
-            dateText.setText(new StringBuilder().append("0").append(date).append("/").
-                    append(month).append("/").append(year).toString());
-        }else if(date >= 10 && month < 10) {
-            dateText.setText(new StringBuilder().append(date).append("/").append("0").
-                    append(month).append("/").append(year).toString());
+            dateText.setText(new StringBuilder().append("0").append(month).append("/").
+                    append("0").append(date).append("/").append(year).toString());
+        } else if(date >= 10 && month < 10){
+            dateText.setText(new StringBuilder().append("0").append(month).append("/").
+                    append(date).append("/").append(year).toString());
+        }else if(date < 10 && month >= 10) {
+            dateText.setText(new StringBuilder().append(month).append("/").append("0").
+                    append(date).append("/").append(year).toString());
         }else if(date >= 10 && month >= 10) {
-            dateText.setText(new StringBuilder().append(date).append("/").append(month).
+            dateText.setText(new StringBuilder().append(month).append("/").append(date).
                     append("/").append(year).toString());
         }
     }
@@ -207,18 +206,25 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
 
         if(TextUtils.isEmpty(date) && TextUtils.isEmpty(time) && TextUtils.isEmpty(task)) {
             Toast.makeText(getActivity(), GlobalData.EMPTY_DATETIMETITLE, Toast.LENGTH_LONG).show();
+            return false;
         } else if(TextUtils.isEmpty(date) && TextUtils.isEmpty(time) && !TextUtils.isEmpty(task)) {
             Toast.makeText(getActivity(), GlobalData.EMPTY_DATETIME, Toast.LENGTH_LONG).show();
+            return false;
         } else if(!TextUtils.isEmpty(date) && TextUtils.isEmpty(time) && TextUtils.isEmpty(task)) {
             Toast.makeText(getActivity(), GlobalData.EMPTY_TIMETITLE, Toast.LENGTH_LONG);
+            return false;
         } else if(TextUtils.isEmpty(date) && !TextUtils.isEmpty(time) && TextUtils.isEmpty(task)) {
             Toast.makeText(getActivity(), GlobalData.EMPTY_DATETITLE, Toast.LENGTH_LONG).show();
+            return false;
         } else if(!TextUtils.isEmpty(date) && !TextUtils.isEmpty(time) && TextUtils.isEmpty(task)) {
             Toast.makeText(getActivity(), GlobalData.EMPTY_TITLE, Toast.LENGTH_LONG).show();
+            return false;
         } else if(!TextUtils.isEmpty(date) && TextUtils.isEmpty(time) && !TextUtils.isEmpty(task)) {
             Toast.makeText(getActivity(), GlobalData.EMPTY_TIME, Toast.LENGTH_LONG).show();
+            return false;
         } else if(TextUtils.isEmpty(date) && !TextUtils.isEmpty(time) && !TextUtils.isEmpty(task)) {
             Toast.makeText(getActivity(), GlobalData.EMPTY_DATE, Toast.LENGTH_LONG).show();
+            return false;
         } else if(!TextUtils.isEmpty(date) && !TextUtils.isEmpty(time) && !TextUtils.isEmpty(task)) {
             return true;
         }
@@ -228,6 +234,16 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
     private void saveData() {
         String date = dateText.getText().toString();
         String time = timeText.getText().toString();
+        int timeOfDay = ampm.getSelectedItemPosition();
+        if(timeOfDay == 0) {
+            // This is AM, does not need any additional processing
+        } else {
+            // This is evening, need to add 12 hours to the time entered
+            String[] timeParts = time.split(":");
+            int hour = Integer.valueOf(timeParts[0]);
+            hour = hour + 12;
+            time = hour + ":" + timeParts[1];
+        }
         String task = titleText.getText().toString();
         String taskDescription = descriptionText.getText().toString();
 

@@ -102,7 +102,8 @@ public class TasksDisplayActivity extends Activity implements
 
     @Override
     public void onGroupCollapse(int groupPosition) {
-        lastExpandedGroupPosition = -1;
+
+        //lastExpandedGroupPosition = -1;
     }
 
     @Override

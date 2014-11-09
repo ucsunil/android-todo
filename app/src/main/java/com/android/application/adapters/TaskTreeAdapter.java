@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +21,10 @@ import com.android.application.datamodels.Subtask;
 import com.android.application.datamodels.Task;
 import com.android.application.storage.DataProvider;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -80,32 +85,56 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
     @Override
     public View getGroupView(int groupPosition, boolean expanded, View convertView, ViewGroup parent) {
         final int position = groupPosition;
-        if(convertView == null) {
-            convertView = inflater.inflate(R.layout.layout_task, parent,false);
+        convertView = inflater.inflate(R.layout.layout_task, parent,false);
+        final TextView dateView = (TextView) convertView.findViewById(R.id.dateView);
+        String dateText = ((Task)getGroup(groupPosition)).getDate();
+        dateView.setText(dateText);
+        // dateView.setText(((Task)getGroup(groupPosition)).getDate());
+        final TextView timeView = (TextView) convertView.findViewById(R.id.timeView);
+        String timeText = ((Task)getGroup(groupPosition)).getTime();
+        String time = timeText;
+        String dayPeriod = "AM";
+        String[] timeParts = timeText.split(":");
+        int hour = Integer.valueOf(timeParts[0]);
+        if(hour > 12) {
+            hour = hour - 12;
+            dayPeriod = "PM";
+            timeText = hour + ":" + timeParts[1] + " " + dayPeriod;
+        } else {
+            timeText = timeText + " " + dayPeriod;
         }
-        TextView dateView = (TextView) convertView.findViewById(R.id.dateView);
-        dateView.setText(((Task)getGroup(groupPosition)).getDate());
-        TextView timeView = (TextView) convertView.findViewById(R.id.timeView);
-        timeView.setText(((Task)getGroup(groupPosition)).getTime());
-        TextView taskName = (TextView) convertView.findViewById(R.id.taskName);
+        timeView.setText(timeText);
+        final TextView taskName = (TextView) convertView.findViewById(R.id.taskName);
         taskName.setText(((Task)getGroup(groupPosition)).getTask());
         CheckBox status = (CheckBox) convertView.findViewById(R.id.status);
         boolean currentStatus = ((Task) getGroup(groupPosition)).getStatus();
         if(currentStatus) {
             status.setChecked(true);
             status.setEnabled(false);
+            taskName.setTextColor(Color.GREEN);
+            dateView.setTextColor(Color.GREEN);
+            timeView.setTextColor(Color.GREEN);
         }
         status.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
                 if(checked) {
                     ((Task)getGroup(position)).setStatus(true);
+                    taskName.setTextColor(Color.GREEN);
+                    dateView.setTextColor(Color.GREEN);
+                    timeView.setTextColor(Color.GREEN);
                 } else if(!checked) {
                     ((Task)getGroup(position)).setStatus(false);
                 }
 
             }
         });
+        boolean timeElapsed = isTimeElapsed(dateText, time);
+        if(timeElapsed && !currentStatus) {
+            taskName.setTextColor(Color.RED);
+            dateView.setTextColor(Color.RED);
+            timeView.setTextColor(Color.RED);
+        }
         return convertView;
     }
 
@@ -113,9 +142,7 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
                              View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if(convertView == null) {
-            convertView = inflater.inflate(R.layout.subtask_item, parent, false);
-        }
+        convertView = inflater.inflate(R.layout.subtask_item, parent, false);
         final Subtask subtask = (Subtask) getChild(groupPosition, childPosition);
         TextView title = (TextView) convertView.findViewById(R.id.subtask);
         title.setText(subtask.getSubtask());
@@ -133,6 +160,9 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
                 context.getContentResolver().update(DataProvider.SUBTASKS_URI, values, where, whereArgs);
             }
         });
+        if(isParentComplete(groupPosition)) {
+            status.setEnabled(false);
+        }
         return convertView;
     }
 
@@ -180,6 +210,26 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
             cursor.moveToNext();
         }
         return subtasks;
+    }
+
+    private boolean isParentComplete(int groupPosition) {
+        Task task = tasks.get(groupPosition);
+        return task.getStatus();
+    }
+
+    private boolean isTimeElapsed(String date, String time) {
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+        Date taskDate = null;
+        try {
+            taskDate = sdf.parse(date + " " + time);
+            Log.d("TTA", taskDate.toString());
+        } catch (ParseException ex) {
+            ex.printStackTrace();
+        }
+        Date now = new Date();
+        Log.d("TTA", now.toString());
+        Log.d("TTA", now.before(taskDate)+"");
+        return now.before(taskDate);
     }
 
 }

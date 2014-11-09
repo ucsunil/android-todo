@@ -9,11 +9,14 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * Created by umonssu on 10/13/14.
  */
 public class DataProvider extends ContentProvider {
+
+    private static final String TAG = "DataProvider";
 
     private DatabaseHelper db = null;
     public static final String AUTHORITY = "com.android.application.storage.DataProvider";
@@ -205,7 +208,7 @@ public class DataProvider extends ContentProvider {
                 // Do nothing
         }
         if(count <= 0) {
-            throw new SQLException("Error in updating!!");
+            Log.v(TAG, "No rows were modified!!");
         } else {
             getContext().getContentResolver().notifyChange(uri, null);
         }

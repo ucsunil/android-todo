@@ -21,6 +21,7 @@ public class SubtaskAdapter extends BaseAdapter {
 
     private Context context;
     private ArrayList<Subtask> subtasks;
+    boolean parentCompleteFlag = false;
 
     public SubtaskAdapter(Context context, ArrayList<Subtask> subtasks) {
         this.context = context;
@@ -58,6 +59,13 @@ public class SubtaskAdapter extends BaseAdapter {
                 subtask.setStatus(checked);
             }
         });
+        if(parentCompleteFlag) {
+            status.setEnabled(false);
+        }
         return rowView;
+    }
+
+    public void setParentCompleteFlag(boolean flag) {
+        parentCompleteFlag = flag;
     }
 }

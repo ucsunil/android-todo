@@ -203,6 +203,7 @@ public class TaskViewFragment extends Fragment implements View.OnClickListener, 
             taskCompleteListener.onTaskComplete(taskId);
             taskBundle.putBoolean("task_status", true);
             subtasks.clear();
+            adapter.setParentCompleteFlag(true);
             initializeAdapter();
             taskStatus.setChecked(true);
             taskStatus.setEnabled(false);
