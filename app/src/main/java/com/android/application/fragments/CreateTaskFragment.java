@@ -183,7 +183,12 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
             ampm.setSelection(0);
         } else {
             ampm.setSelection(1);
-            hour = hour - 12;
+            if(hour > 12) {
+                hour = hour - 12;
+            } else {
+                // Do nothing
+                // This is so that we can have 12:00 PM - 12:59 PM
+            }
         }
 
         if(hour < 10 && minute < 10) {

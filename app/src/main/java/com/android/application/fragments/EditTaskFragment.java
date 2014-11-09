@@ -91,13 +91,18 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
         descriptionText.setText(taskBundle.getString("description"));
         ampm = (Spinner) view.findViewById(R.id.ampm);
         String[] times = taskBundle.getString("time").split(":");
-        if(Integer.valueOf(times[0]) < 12) {
+        if(Integer.valueOf(times[0]) <= 12) {
             timeText.setText(taskBundle.getString("time"));
             ampm.setSelection(0);
         } else {
             int hour = Integer.valueOf(times[0]) - 12;
-            String time = hour + times[0];
-            timeText.setText(time);
+            if(hour < 10) {
+                String time = "0" + hour + ":" + times[1];
+                timeText.setText(time);
+            } else {
+                String time = hour + ":" + times[1];
+                timeText.setText(time);
+            }
             ampm.setSelection(1);
         }
 
@@ -292,7 +297,17 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
 
         ContentValues values = new ContentValues();
         values.put("date", date);
-        values.put("time", time);
+        if(ampm.getSelectedItem().toString().equals("AM")) {
+            values.put("time", time);
+        } else {
+            String[] times = time.split(":");
+            int hour = Integer.valueOf(times[0]);
+            if(hour != 12) {
+                hour = hour + 12;
+            }
+            time = hour + ":" + times[1];
+            values.put("time", time);
+        }
         values.put("task", task);
         values.put("description", taskDescription);
         if(noteFlag) {
