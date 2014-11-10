@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.android.application.R;
+import com.android.application.fragments.TasksDeleteFragment;
 import com.android.application.fragments.views.SubtaskViewFragment;
 import com.android.application.fragments.views.TaskViewFragment;
 
@@ -12,6 +13,7 @@ public class ViewActivity extends Activity implements TaskViewFragment.OnTaskCom
 
     TaskViewFragment taskViewFragment;
     SubtaskViewFragment subtaskViewFragment;
+    TasksDeleteFragment tasksDeleteFragment;
     Bundle dataBundle;
     private final int TASK_COMPLETE_CONFIRMED = 2;
 
@@ -27,6 +29,8 @@ public class ViewActivity extends Activity implements TaskViewFragment.OnTaskCom
         } else if(viewWhat.equals("viewSubtask")) {
             dataBundle = getIntent().getExtras();
             showSubtaskViewFragment(dataBundle);
+        } else if(viewWhat.equals("viewDeleteList")) {
+            showTaskDeleteFragment();
         }
 
     }
@@ -46,6 +50,15 @@ public class ViewActivity extends Activity implements TaskViewFragment.OnTaskCom
         }
         if(!subtaskViewFragment.isVisible()) {
             getFragmentManager().beginTransaction().replace(R.id.content, subtaskViewFragment).commit();
+        }
+    }
+
+    private void showTaskDeleteFragment() {
+        if(tasksDeleteFragment == null) {
+            tasksDeleteFragment = TasksDeleteFragment.newInstance();
+        }
+        if(!tasksDeleteFragment.isVisible()) {
+            getFragmentManager().beginTransaction().replace(R.id.content, tasksDeleteFragment).commit();
         }
     }
 

@@ -1,0 +1,22 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ListView
+        android:id="@+id/listTasks"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"/>
+    <View
+        android:background="@android:color/black"
+        android:layout_width="match_parent"
+        android:layout_height="1dp" />
+    <Button
+        android:id="@+id/goBack"
+        android:text="@string/go_back"
+        android:background="@android:color/transparent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ExpandableListView;
@@ -137,6 +140,24 @@ public class TasksDisplayActivity extends Activity implements
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.tasksdisplaymenu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.delete:
+                showTaskDeleteFragment();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         if(requestCode == resultCode) {
@@ -220,6 +241,12 @@ public class TasksDisplayActivity extends Activity implements
             // this automatically refreshes the children at this position
             tasksTree.expandGroup(lastExpandedGroupPosition);
         }
+    }
+
+    private void showTaskDeleteFragment() {
+        Intent intent = new Intent(this, ViewActivity.class);
+        intent.putExtra("viewWhat", "viewDeleteList");
+        startActivity(intent);
     }
 
 }

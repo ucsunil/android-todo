@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import com.android.application.R;
-import com.android.application.adapters.EditTasksListAdapter;
+import com.android.application.adapters.DeleteTasksListAdapter;
 import com.android.application.datamodels.Task;
 import com.android.application.storage.DataProvider;
 
@@ -28,7 +28,7 @@ public class EditTasksListFragment extends Fragment implements View.OnClickListe
     ListView listView;
     Cursor cursor;
     ArrayList<Task> tasks;
-    EditTasksListAdapter adapter;
+    DeleteTasksListAdapter adapter;
     EditTaskFragment editTaskFragment;
 
     public static EditTasksListFragment newInstance() {
@@ -58,7 +58,7 @@ public class EditTasksListFragment extends Fragment implements View.OnClickListe
             task.setDescription(cursor.getString(7));
             tasks.add(task);
         }
-        adapter = new EditTasksListAdapter(getActivity(), tasks);
+        adapter = new DeleteTasksListAdapter(getActivity(), tasks);
     }
 
     @Override
