@@ -37,7 +37,6 @@ public class TaskCompleteDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
         alertDialog.setTitle(GlobalData.CONFIRM_COMPLETE).setMessage(GlobalData.CONFIRM_COMPLETE_MESSAGE);
-        alertDialog.setCancelable(false);
         alertDialog.setPositiveButton("Complete", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {

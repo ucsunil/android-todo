@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -89,7 +88,6 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
         final TextView dateView = (TextView) convertView.findViewById(R.id.dateView);
         String dateText = ((Task)getGroup(groupPosition)).getDate();
         dateView.setText(dateText);
-        // dateView.setText(((Task)getGroup(groupPosition)).getDate());
         final TextView timeView = (TextView) convertView.findViewById(R.id.timeView);
         String timeText = ((Task)getGroup(groupPosition)).getTime();
         String time = timeText;
@@ -182,7 +180,7 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
         return false;
     }
 
-    private ArrayList<Subtask> getSubtaskListForGroup(int groupPosition) {
+    public ArrayList<Subtask> getSubtaskListForGroup(int groupPosition) {
         Task task = tasks.get(groupPosition);
         int taskId = task.getTaskId();
         ArrayList<Subtask> subtasks = new ArrayList<Subtask>();
@@ -222,13 +220,10 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
         Date taskDate = null;
         try {
             taskDate = sdf.parse(date + " " + time);
-            Log.d("TTA", taskDate.toString());
         } catch (ParseException ex) {
             ex.printStackTrace();
         }
         Date now = new Date();
-        Log.d("TTA", now.toString());
-        Log.d("TTA", now.before(taskDate)+"");
         return now.after(taskDate);
     }
 

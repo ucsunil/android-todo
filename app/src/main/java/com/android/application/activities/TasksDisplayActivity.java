@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.android.application.GlobalData;
 import com.android.application.R;
 import com.android.application.adapters.TaskTreeAdapter;
+import com.android.application.datamodels.Subtask;
 import com.android.application.datamodels.Task;
 import com.android.application.helpers.DataProviderObserver;
 import com.android.application.storage.DataProvider;
@@ -31,6 +32,8 @@ public class TasksDisplayActivity extends Activity implements
         ExpandableListView.OnGroupExpandListener, ExpandableListView.OnGroupCollapseListener, AdapterView.OnItemLongClickListener {
 
     List<Task> tasks;
+    List<Subtask> subtasks;
+    List<Subtask> subtaskListForGroup;
     TaskTreeAdapter taskTreeAdapter;
     ExpandableListView tasksTree;
     private int lastExpandedGroupPosition = -1;
@@ -95,6 +98,17 @@ public class TasksDisplayActivity extends Activity implements
     @Override
     public boolean onChildClick(ExpandableListView expandableListView, View view, int groupPosition,
                                                         int childPosition, long id) {
+        Toast.makeText(this,"groupPosition = " + groupPosition + "position = " + childPosition + ", id = " + id,Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, ViewActivity.class);
+        intent.putExtra("viewWhat", "viewSubtask");
+        subtaskListForGroup = taskTreeAdapter.getSubtaskListForGroup(groupPosition);
+        Subtask subtask = subtaskListForGroup.get(childPosition);
+        Bundle bundle = new Bundle();
+        bundle.putInt("subtask_id", subtask.getSubtaskId());
+        bundle.putString("subtask_title", subtask.getSubtask());
+        bundle.putString("subtask_description", subtask.getDescription());
+        intent.putExtras(bundle);
+        startActivity(intent);
         return false;
     }
 
@@ -106,7 +120,6 @@ public class TasksDisplayActivity extends Activity implements
     @Override
     public void onGroupCollapse(int groupPosition) {
 
-        //lastExpandedGroupPosition = -1;
     }
 
     @Override
@@ -119,23 +132,37 @@ public class TasksDisplayActivity extends Activity implements
 
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
-        Intent intent = new Intent(this, ViewActivity.class);
-        intent.putExtra("viewWhat", "viewTask");
-        Bundle bundle = new Bundle();
-        Task task = tasks.get(position);
-        positionBeingViewed = position;
-        taskIdPositionBeingViewed = task.getTaskId();
-        bundle.putInt("task_id", task.getTaskId());
-        bundle.putString("date", task.getDate());
-        bundle.putString("time", task.getTime());
-        bundle.putString("task", task.getTask());
-        bundle.putBoolean("has_note", task.getHasNote());
-        bundle.putBoolean("task_status", task.getStatus());
-        bundle.putString("description", task.getDescription());
-        intent.putExtras(bundle);
+        long packedPosition = tasksTree.getExpandableListPosition(position);
+        if(ExpandableListView.getPackedPositionType(packedPosition) ==
+                ExpandableListView.PACKED_POSITION_TYPE_GROUP) {
+            Intent intent = new Intent(this, ViewActivity.class);
+            intent.putExtra("viewWhat", "viewTask");
+            Bundle bundle = new Bundle();
+            Task task = tasks.get(position);
+            positionBeingViewed = position;
+            taskIdPositionBeingViewed = task.getTaskId();
+            bundle.putInt("task_id", task.getTaskId());
+            bundle.putString("date", task.getDate());
+            bundle.putString("time", task.getTime());
+            bundle.putString("task", task.getTask());
+            bundle.putBoolean("has_note", task.getHasNote());
+            bundle.putBoolean("task_status", task.getStatus());
+            bundle.putString("description", task.getDescription());
+            intent.putExtras(bundle);
 
-        // Listen to the ViewActivity to find out if the task is updated
-        startActivityForResult(intent, EDITED_TASK);
+            // Listen to the ViewActivity to find out if the task is updated
+            startActivityForResult(intent, EDITED_TASK);
+        } else {
+            Intent intent = new Intent(this, ViewActivity.class);
+            intent.putExtra("viewWhat", "viewSubtask");
+            Subtask subtask = subtasks.get(position - 1);
+            Bundle bundle = new Bundle();
+            bundle.putInt("subtask_id", subtask.getSubtaskId());
+            bundle.putString("subtask_title", subtask.getSubtask());
+            bundle.putString("subtask_description", subtask.getDescription());
+            intent.putExtras(bundle);
+            startActivity(intent);
+        }
         return true;
     }
 
@@ -220,6 +247,13 @@ public class TasksDisplayActivity extends Activity implements
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        initializeSubtasksList();
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
 
@@ -247,6 +281,36 @@ public class TasksDisplayActivity extends Activity implements
         Intent intent = new Intent(this, ViewActivity.class);
         intent.putExtra("viewWhat", "viewDeleteList");
         startActivity(intent);
+    }
+
+    private void initializeSubtasksList() {
+        subtasks = getAllSubtasks();
+    }
+
+    private ArrayList<Subtask> getAllSubtasks() {
+        ArrayList<Subtask> subtasks = new ArrayList<Subtask>();
+
+        Cursor cursor = getContentResolver().query(DataProvider.SUBTASKS_URI, null, null, null, null);
+
+        cursor.moveToFirst();
+        for(int i = 0; i < cursor.getCount(); i++) {
+            Subtask subtask = new Subtask();
+            subtask.setSubtaskId(cursor.getInt(0));
+            subtask.setTaskId(cursor.getInt(1));
+            subtask.setSubtask(cursor.getString(2));
+            boolean bool = (cursor.getInt(3) == 1) ? true : false;
+            subtask.setHasNote(bool);
+            bool = (cursor.getInt(4) == 1) ? true : false;
+            subtask.setStatus(bool);
+            subtask.setDescription(cursor.getString(5));
+            subtasks.add(subtask);
+
+            if(cursor.isLast()) {
+                break;
+            }
+            cursor.moveToNext();
+        }
+        return subtasks;
     }
 
 }
