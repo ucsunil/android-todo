@@ -39,7 +39,10 @@ public class TasksDisplayActivity extends Activity implements
     private int lastExpandedGroupPosition = -1;
     DataProviderObserver observer;
 
-    private int positionBeingViewed = -1, taskIdPositionBeingViewed = -1;
+    private int positionBeingViewed = -1;
+    private int taskIdPositionBeingViewed = -1;
+    private final int CONFIRMED_CODE = 1;
+    private final int NOT_CONFIRMED_CODE = 3;
     private final int TASK_COMPLETE_CONFIRMED = 2;
     private final int EDITED_TASK = 5;
 
@@ -214,7 +217,7 @@ public class TasksDisplayActivity extends Activity implements
                     taskTreeAdapter.notifyDataSetChanged();
                 }
             }
-        } else if(resultCode == TASK_COMPLETE_CONFIRMED) {
+        } else if(resultCode == TASK_COMPLETE_CONFIRMED || resultCode == CONFIRMED_CODE) {
             int index = 0;
             for (Task task : tasks) {
                 if(task.getTaskId() == intent.getIntExtra("task_id", -1)) {
@@ -242,6 +245,12 @@ public class TasksDisplayActivity extends Activity implements
             task.setStatus(bool);
             task.setDescription(cursor.getString(7));
             tasks.set(index, task);
+            taskTreeAdapter.notifyDataSetChanged();
+        } else if(resultCode == NOT_CONFIRMED_CODE) {
+            // This refreshes the entire adapter and is hence not very efficient.
+            // TO DO...
+            // Figure out how to only uncheck the checkbox for that particular task in the
+            // TaskTreeAdapter
             taskTreeAdapter.notifyDataSetChanged();
         }
     }

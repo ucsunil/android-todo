@@ -1,6 +1,7 @@
 package com.android.application.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,6 +61,7 @@ public class SubtaskAdapter extends BaseAdapter {
             }
         });
         if(parentCompleteFlag) {
+            title.setTextColor(Color.GRAY);
             status.setEnabled(false);
         }
         return rowView;

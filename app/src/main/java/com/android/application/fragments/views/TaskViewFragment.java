@@ -89,6 +89,7 @@ public class TaskViewFragment extends Fragment implements View.OnClickListener, 
         timeView = (TextView) view.findViewById(R.id.timeView);
         taskTitle = (TextView) view.findViewById(R.id.taskTitle);
         taskDescription = (TextView) view.findViewById(R.id.taskDescription);
+        listView = (ListView) view.findViewById(R.id.subtasksList);
         edit = (Button) view.findViewById(R.id.edit);
         edit.setOnClickListener(this);
         ok = (Button) view.findViewById(R.id.ok);
@@ -98,8 +99,10 @@ public class TaskViewFragment extends Fragment implements View.OnClickListener, 
         if(status) {
             taskStatus.setChecked(true);
             taskStatus.setEnabled(false);
+            adapter.setParentCompleteFlag(true);
             edit.setEnabled(false);
         }
+        listView.setAdapter(adapter);
         taskStatus.setOnCheckedChangeListener(this);
 
         dateView.setText(taskBundle.getString("date"));
@@ -110,8 +113,6 @@ public class TaskViewFragment extends Fragment implements View.OnClickListener, 
         } else {
             taskDescription.setText(taskBundle.getString("description"));
         }
-        listView = (ListView) view.findViewById(R.id.subtasksList);
-        listView.setAdapter(adapter);
         listView.setMultiChoiceModeListener(new ActionModeListener(getActivity(), this, listView, actionModeFlag));
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         listView.setOnItemLongClickListener(new ListView.OnItemLongClickListener() {

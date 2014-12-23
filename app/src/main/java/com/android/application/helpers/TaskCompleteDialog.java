@@ -5,9 +5,11 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.android.application.GlobalData;
+import com.android.application.activities.TasksDisplayActivity;
 import com.android.application.activities.ViewActivity;
 import com.android.application.storage.DataProvider;
 
@@ -18,6 +20,10 @@ public class TaskCompleteDialog extends DialogFragment {
 
     private final int CONFIRMED = 1;
     private final int NOT_CONFIRMED = 2;
+    // Created this code exclusively for use within the TasksDisplayActivity
+    // as the code '2' corresponding to NOT_CONFIRMED was already used to
+    // describe TASK_COMPLETE_CONFIRMED
+    private final int TDA_NOT_CONFIRMED_CODE = 3;
     Bundle taskBundle;
 
     public static TaskCompleteDialog newInstance(Bundle taskBundle) {
@@ -51,14 +57,20 @@ public class TaskCompleteDialog extends DialogFragment {
                 getActivity().getContentResolver().update(DataProvider.TASKS_URI, taskValues, where, whereArgs);
                 if(getActivity() instanceof ViewActivity) {
                     getTargetFragment().onActivityResult(getTargetRequestCode(), CONFIRMED, null);
+                } else if(getActivity() instanceof TasksDisplayActivity) {
+                    Intent intent = new Intent();
+                    intent.putExtra("task_id", taskId);
+                    ((TasksDisplayActivity) getActivity()).onActivityResult(getTargetRequestCode(), CONFIRMED, intent);
                 }
                 getDialog().dismiss();
             }
         }).setNegativeButton("Go Back", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {
-                if(getActivity() instanceof ViewActivity) {
+                if (getActivity() instanceof ViewActivity) {
                     getTargetFragment().onActivityResult(getTargetRequestCode(), NOT_CONFIRMED, null);
+                } else if(getActivity() instanceof TasksDisplayActivity) {
+                    ((TasksDisplayActivity) getActivity()).onActivityResult(getTargetRequestCode(), TDA_NOT_CONFIRMED_CODE, null);
                 }
                 dialogInterface.cancel();
                 getDialog().cancel();

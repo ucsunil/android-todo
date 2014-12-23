@@ -1,10 +1,12 @@
 package com.android.application.adapters;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +17,11 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.android.application.R;
+import com.android.application.activities.TasksDisplayActivity;
 import com.android.application.activities.ViewActivity;
 import com.android.application.datamodels.Subtask;
 import com.android.application.datamodels.Task;
+import com.android.application.helpers.TaskCompleteDialog;
 import com.android.application.storage.DataProvider;
 
 import java.text.ParseException;
@@ -34,11 +38,15 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
     private Context context;
     private LayoutInflater inflater;
     private List<Task> tasks;
+    Activity tasksDisplayActivity;
+
+    TextView taskName, dateView, timeView;
 
     public TaskTreeAdapter(Context context, List<Task> tasks) {
         this.context = context;
         this.inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.tasks = tasks;
+        this.tasksDisplayActivity = (TasksDisplayActivity) context;
     }
 
     @Override
@@ -82,13 +90,13 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
     }
 
     @Override
-    public View getGroupView(int groupPosition, boolean expanded, View convertView, ViewGroup parent) {
+    public View getGroupView(final int groupPosition, boolean expanded, View convertView, ViewGroup parent) {
         final int position = groupPosition;
         convertView = inflater.inflate(R.layout.layout_task, parent,false);
-        final TextView dateView = (TextView) convertView.findViewById(R.id.dateView);
+        dateView = (TextView) convertView.findViewById(R.id.dateView);
         String dateText = ((Task)getGroup(groupPosition)).getDate();
         dateView.setText(dateText);
-        final TextView timeView = (TextView) convertView.findViewById(R.id.timeView);
+        timeView = (TextView) convertView.findViewById(R.id.timeView);
         String timeText = ((Task)getGroup(groupPosition)).getTime();
         String time = timeText;
         String dayPeriod = "AM";
@@ -102,7 +110,7 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
             timeText = timeText + " " + dayPeriod;
         }
         timeView.setText(timeText);
-        final TextView taskName = (TextView) convertView.findViewById(R.id.taskName);
+        taskName = (TextView) convertView.findViewById(R.id.taskName);
         taskName.setText(((Task)getGroup(groupPosition)).getTask());
         CheckBox status = (CheckBox) convertView.findViewById(R.id.status);
         boolean currentStatus = ((Task) getGroup(groupPosition)).getStatus();
@@ -117,10 +125,8 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
                 if(checked) {
-                    ((Task)getGroup(position)).setStatus(true);
-                    taskName.setTextColor(Color.GRAY);
-                    dateView.setTextColor(Color.GRAY);
-                    timeView.setTextColor(Color.GRAY);
+                    TaskCompleteDialog dialog = TaskCompleteDialog.newInstance(setTaskBundle(groupPosition));
+                    dialog.show(tasksDisplayActivity.getFragmentManager(), "alertDialog");
                 } else if(!checked) {
                     ((Task)getGroup(position)).setStatus(false);
                 }
@@ -142,7 +148,7 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         convertView = inflater.inflate(R.layout.subtask_item, parent, false);
         final Subtask subtask = (Subtask) getChild(groupPosition, childPosition);
-        TextView title = (TextView) convertView.findViewById(R.id.subtask);
+        final TextView title = (TextView) convertView.findViewById(R.id.subtask);
         title.setText(subtask.getSubtask());
         final Switch status = (Switch) convertView.findViewById(R.id.status);
         status.setChecked(subtask.isStatus());
@@ -159,6 +165,7 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
             }
         });
         if(isParentComplete(groupPosition)) {
+            title.setTextColor(Color.GRAY);
             status.setEnabled(false);
         }
         return convertView;
@@ -227,4 +234,10 @@ public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.O
         return now.after(taskDate);
     }
 
+    private Bundle setTaskBundle(int groupPosition) {
+        Task task = tasks.get(groupPosition);
+        Bundle bundle = new Bundle();
+        bundle.putInt("task_id", task.getTaskId());
+        return bundle;
+    }
 }
