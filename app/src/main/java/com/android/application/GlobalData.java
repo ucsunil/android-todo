@@ -1,6 +1,10 @@
 package com.android.application;
 
 import android.app.Application;
+import android.content.Intent;
+import android.os.Bundle;
+
+import com.android.application.services.TaskAlertService;
 
 /**
  * Created by umonssu on 10/12/14.
@@ -24,4 +28,10 @@ public class GlobalData extends Application {
     public static final String CONFIRM_COMPLETE_MESSAGE = "Are you sure you want to mark this task " +
             "as completed? This will mark any subtask within this task as completed as well and you will " +
             "not be able to edit it in the future.";
+
+    @Override
+    public void onCreate() {
+        Intent intent = new Intent(getApplicationContext(), TaskAlertService.class);
+        startService(intent);
+    }
 }

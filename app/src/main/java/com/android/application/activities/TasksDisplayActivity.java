@@ -73,7 +73,7 @@ public class TasksDisplayActivity extends Activity implements
             Toast.makeText(this, GlobalData.NO_TASKS, Toast.LENGTH_LONG).show();
             return;
         }
-        cursor. moveToFirst();
+        cursor.moveToFirst();
         boolean bool = false;
         while(true) {
             Task task = new Task();
