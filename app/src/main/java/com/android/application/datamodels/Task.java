@@ -1,13 +1,28 @@
 package com.android.application.datamodels;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
- * Created by umonssu on 10/14/14.
+ * Created by Sunil on 10/14/14.
  */
-public class Task {
+public class Task implements Parcelable{
 
     int taskId;
     String date, time, task, description;
     boolean hasNote, hasSubtasks, status;
+    private boolean[] booleans = new boolean[3];
+
+    public Task() {};
+
+    private Task(Parcel in) {
+        this.taskId = in.readInt();
+        this.date = in.readString();
+        this.time = in.readString();
+        this.task = in.readString();
+        this.description = in.readString();
+        in.readBooleanArray(booleans);
+    }
 
     public int getTaskId() {
         return taskId;
@@ -73,8 +88,42 @@ public class Task {
         this.status = status;
     }
 
+    public void setBooleans() {
+        this.booleans[0] = this.hasNote;
+        this.booleans[1] = this.status;
+        this.booleans[2] = this.hasSubtasks;
+    }
+
     @Override
     public String toString() {
         return this.task;
     }
+
+    @Override
+    public int describeContents() {
+        return this.hashCode();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(taskId);
+        dest.writeString(date);
+        dest.writeString(time);
+        dest.writeString(task);
+        dest.writeString(description);
+        dest.writeBooleanArray(booleans);
+    }
+
+    public static final Creator<Task> CREATOR = new Creator<Task>() {
+
+        @Override
+        public Task createFromParcel(Parcel parcel) {
+            return new Task(parcel);
+        }
+
+        @Override
+        public Task[] newArray(int size) {
+            return new Task[size];
+        }
+    };
 }

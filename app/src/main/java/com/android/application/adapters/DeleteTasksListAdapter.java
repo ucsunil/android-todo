@@ -15,7 +15,9 @@ import com.android.application.storage.DataProvider;
 import java.util.List;
 
 /**
- * Created by umonssu on 10/17/14.
+ * This class is the backing adapter for the delete tasks list activity
+ *
+ * Created by Sunil on 10/17/14.
  */
 public class DeleteTasksListAdapter extends BaseAdapter {
 

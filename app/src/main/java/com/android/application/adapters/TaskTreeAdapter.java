@@ -30,8 +30,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Created by umonssu on 10/14/14.
+/**This class is the backing adapter for the main tasks display activity
+ *
+ * Created by Sunil on 10/14/14.
  */
 public class TaskTreeAdapter extends BaseExpandableListAdapter implements View.OnLongClickListener {
 

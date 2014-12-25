@@ -28,6 +28,10 @@ public class GlobalData extends Application {
     public static final String CONFIRM_COMPLETE_MESSAGE = "Are you sure you want to mark this task " +
             "as completed? This will mark any subtask within this task as completed as well and you will " +
             "not be able to edit it in the future.";
+    public static final String THIRTY_MINUTE_BROADCAST = "Thirty minutes to task";
+    public static final String FIFTEEN_MINUTE_BROADCAST = "Fifteen minutes to task";
+    public static final String FIVE_MINUTE_BROADCAST = "Five minutes to task";
+    public static final String NOW_BROADCAST = "Task starts now";
 
     @Override
     public void onCreate() {
