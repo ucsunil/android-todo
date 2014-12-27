@@ -92,6 +92,10 @@ public class TaskViewFragment extends Fragment implements View.OnClickListener, 
         listView = (ListView) view.findViewById(R.id.subtasksList);
         edit = (Button) view.findViewById(R.id.edit);
         edit.setOnClickListener(this);
+        // If this is being started from a notification, then disable the Edit button
+        if(taskBundle.getBoolean("fromNotification", false)) {
+            edit.setEnabled(false);
+        }
         ok = (Button) view.findViewById(R.id.ok);
         ok.setOnClickListener(this);
         taskStatus = (Switch) view.findViewById(R.id.taskStatus);
