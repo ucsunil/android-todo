@@ -6,20 +6,16 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.provider.Settings;
-import android.util.Log;
 
 import com.android.application.GlobalData;
-import com.android.application.TaskNotificationReceiver;
+import com.android.application.receivers.TaskNotificationReceiver;
 import com.android.application.datamodels.Task;
 import com.android.application.storage.DataProvider;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**

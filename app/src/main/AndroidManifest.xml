@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.application" >
+    
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".GlobalData"
@@ -12,7 +14,10 @@
             android:name=".storage.DataProvider"
             android:authorities="com.android.application.storage.DataProvider"
             android:exported="false" />
-
+        <provider
+            android:name=".storage.OldTasksDataProvider"
+            android:authorities="com.android.application.storage.OldTasksDataProvider"
+            android:exported="false" />
         <activity
             android:name=".HomeActivity"
             android:label="@string/app_name"
@@ -34,12 +39,19 @@
             android:enabled="true"
             android:exported="false" >
         </service>
-
-        <receiver
-            android:name=".TaskNotificationReceiver"
+        <service
+            android:name=".services.TasksRemoveIntentService"
             android:enabled="true"
-            android:exported="false" >
+            android:exported="false">
+        </service>
+
+        <receiver android:name=".receivers.TaskNotificationReceiver" />
+        <receiver android:name=".receivers.PollReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
         </receiver>
+
     </application>
 
 </manifest>

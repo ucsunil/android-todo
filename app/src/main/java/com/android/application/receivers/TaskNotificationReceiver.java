@@ -1,4 +1,4 @@
-package com.android.application;
+package com.android.application.receivers;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -10,6 +10,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.android.application.GlobalData;
+import com.android.application.HomeActivity;
+import com.android.application.R;
 import com.android.application.activities.TasksDisplayActivity;
 import com.android.application.activities.ViewActivity;
 import com.android.application.datamodels.Task;

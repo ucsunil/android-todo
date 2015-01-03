@@ -170,7 +170,6 @@ public class TaskViewFragment extends Fragment implements View.OnClickListener, 
     }
 
     private void saveAllData() {
-
         saveSubtasksStatusData();
     }
 

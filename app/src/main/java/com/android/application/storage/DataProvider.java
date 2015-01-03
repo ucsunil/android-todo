@@ -1,8 +1,11 @@
 package com.android.application.storage;
 
 import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -10,6 +13,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
+
+import java.util.ArrayList;
 
 /**
  * Created by umonssu on 10/13/14.
@@ -191,7 +196,6 @@ public class DataProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String where, String[] selectionArgs) {
-        Uri updatedPosition = null;
         int match = MATCHER.match(uri);
         int count = 0;
         switch (match) {
@@ -236,5 +240,23 @@ public class DataProvider extends ContentProvider {
             database.endTransaction();
         }
         return count;
+    }
+
+    @Override
+    public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations)
+                                                        throws OperationApplicationException {
+        SQLiteDatabase database = db.getWritableDatabase();
+        ContentProviderResult[] results = new ContentProviderResult[operations.size()];
+        try {
+            database.beginTransaction();
+            for(int i = 0; i < operations.size(); i++) {
+                ContentProviderOperation operation = operations.get(i);
+                results[i] = operation.apply(this, results, i);
+            }
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+        return results;
     }
 }

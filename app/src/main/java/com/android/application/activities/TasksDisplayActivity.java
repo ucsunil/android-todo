@@ -101,7 +101,6 @@ public class TasksDisplayActivity extends Activity implements
     @Override
     public boolean onChildClick(ExpandableListView expandableListView, View view, int groupPosition,
                                                         int childPosition, long id) {
-        Toast.makeText(this,"groupPosition = " + groupPosition + "position = " + childPosition + ", id = " + id,Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, ViewActivity.class);
         intent.putExtra("viewWhat", "viewSubtask");
         subtaskListForGroup = taskTreeAdapter.getSubtaskListForGroup(groupPosition);
@@ -122,7 +121,7 @@ public class TasksDisplayActivity extends Activity implements
 
     @Override
     public void onGroupCollapse(int groupPosition) {
-
+        lastExpandedGroupPosition = -1;
     }
 
     @Override
@@ -138,11 +137,12 @@ public class TasksDisplayActivity extends Activity implements
         long packedPosition = tasksTree.getExpandableListPosition(position);
         if(ExpandableListView.getPackedPositionType(packedPosition) ==
                 ExpandableListView.PACKED_POSITION_TYPE_GROUP) {
+            int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
             Intent intent = new Intent(this, ViewActivity.class);
             intent.putExtra("viewWhat", "viewTask");
             Bundle bundle = new Bundle();
-            Task task = tasks.get(position);
-            positionBeingViewed = position;
+            Task task = tasks.get(groupPosition);
+            positionBeingViewed = groupPosition;
             taskIdPositionBeingViewed = task.getTaskId();
             bundle.putInt("task_id", task.getTaskId());
             bundle.putString("date", task.getDate());
@@ -156,9 +156,10 @@ public class TasksDisplayActivity extends Activity implements
             // Listen to the ViewActivity to find out if the task is updated
             startActivityForResult(intent, EDITED_TASK);
         } else {
+            int child = ExpandableListView.getPackedPositionChild(packedPosition);
             Intent intent = new Intent(this, ViewActivity.class);
             intent.putExtra("viewWhat", "viewSubtask");
-            Subtask subtask = subtasks.get(position - 1);
+            Subtask subtask = subtasks.get(child);
             Bundle bundle = new Bundle();
             bundle.putInt("subtask_id", subtask.getSubtaskId());
             bundle.putString("subtask_title", subtask.getSubtask());

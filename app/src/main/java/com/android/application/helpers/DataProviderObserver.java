@@ -20,7 +20,7 @@ public class DataProviderObserver extends ContentObserver {
 
     @Override
     public void onChange(boolean selfchange, Uri uri) {
-        Log.d("DataProviderObserver", uri.toString());
+        Log.d("DataProviderObserver", uri.toString() + "was where the insert went to!!");
         // ((TasksDisplayActivity)context).initializeAdapter();
     }
 }
