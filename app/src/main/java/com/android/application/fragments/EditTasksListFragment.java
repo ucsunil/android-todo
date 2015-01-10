@@ -83,7 +83,7 @@ public class EditTasksListFragment extends Fragment implements View.OnClickListe
     @Override
     public void onClick(View view) {
         if(view.getId() == R.id.goBack) {
-
+            getActivity().onBackPressed();
         }
     }
 
@@ -92,12 +92,20 @@ public class EditTasksListFragment extends Fragment implements View.OnClickListe
         Task task = tasks.get(position);
         Bundle bundle = new Bundle();
         bundle.putInt("task_id", task.getTaskId());
+        bundle.putString("date", task.getDate());
+        bundle.putString("time", task.getTime());
+        bundle.putString("task", task.getTask());
+        bundle.putString("description", task.getDescription());
+        bundle.putBoolean("has_note", task.getHasNote());
+        bundle.putBoolean("task_status", task.getStatus());
+        bundle.putBoolean("subtasks", task.getHasSubtasks());
 
         if(editTaskFragment == null) {
             editTaskFragment = EditTaskFragment.newInstance(bundle);
         }
         if(!editTaskFragment.isVisible()) {
-            getFragmentManager().beginTransaction().replace(R.id.content, editTaskFragment).commit();
+            getFragmentManager().beginTransaction().replace(R.id.content, editTaskFragment)
+                    .addToBackStack(null).commit();
         }
     }
 }

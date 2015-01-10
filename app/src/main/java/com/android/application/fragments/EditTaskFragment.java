@@ -139,7 +139,7 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
             intent.putExtra("edited", updatedFlag);
             intent.putExtra("task_id", taskBundle.getInt("task_id"));
             getActivity().setResult(EDITED_CODE, intent);
-            getActivity().finish();
+            getActivity().onBackPressed();
         } else if(view.getId() == R.id.addNote) {
             if(noteFlag) {
                 showAddNoteFragment(notesBundle);
@@ -149,7 +149,7 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
         } else if(view.getId() == R.id.addSubtask) {
             showAddSubTaskFragment();
         } else if(view.getId() == R.id.cancel) {
-            getActivity().finish();
+            getActivity().onBackPressed();
         }
     }
 
