@@ -48,8 +48,6 @@ public class TaskNotifyService extends Service {
 
         private String taskId;
         private Cursor cursor;
-        Intent homeIntent, taskListIntent, taskIntent;
-        TaskStackBuilder stackBuilder;
         long nDate;
 
         public CreateAlarmsThread(String taskId) {

@@ -4,6 +4,7 @@ package com.android.application.fragments;
 import android.app.Fragment;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -42,6 +43,9 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
     Bundle notesBundle, taskBundle;
     private int taskId = -1;
     private int EDITED_CODE = 5;
+    private final int NOTE_EDITED_CODE = 6;
+    private boolean noteCreated, noteEdited;
+    String descriptiveText;
 
     AddSubtaskFragment addSubtaskFragment;
 
@@ -109,15 +113,16 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
         addSubtask = (Button) view.findViewById(R.id.addSubtask);
         addSubtask.setOnClickListener(this);
 
-        int note = 0;// getArguments().getInt("has_note");
-        if(note == 0) {
+        boolean note = getArguments().getBoolean("has_note");
+        if(!note) {
             noteFlag = false;
             addNote = (Button) view.findViewById(R.id.addNote);
             addNote.setOnClickListener(this);
-        } else if(note == 1) { // means that this task has an attached note
+        } else if(note) { // means that this task has an attached note
             noteFlag = true;
             notesBundle = new Bundle();
             String notes = getNotesForTask();
+            notesBundle.putString("notes", notes);
             editNote = (Button) view.findViewById(R.id.addNote);
             editNote.setText(R.string.edit_note);
             editNote.setOnClickListener(this);
@@ -165,6 +170,8 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
                 boolean hasNote = notesBundle.getBoolean("noteFlag");
                 if(hasNote) {
                     noteFlag = true;
+                    noteCreated = true;
+                    descriptiveText = notesBundle.getString("note");
                 } else {
                     noteFlag = false;
                 }
@@ -285,8 +292,8 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
         // Verify that the data actually changed before updating the database record
         if(date.equals(taskBundle.getString("date")) && time.equals(taskBundle.getString("time"))
                 && task.equals(taskBundle.getString("task")) && taskDescription.equals(taskBundle.getString("description"))
-                && (noteFlag == taskBundle.getBoolean("has_note")) && (completed == taskBundle.getBoolean("task_status"))
-                && (subtasksFlag == taskBundle.getBoolean("subtasks"))) {
+                && (noteCreated == false) && (noteEdited == false)
+                && (completed == taskBundle.getBoolean("task_status")) && (subtasksFlag == taskBundle.getBoolean("subtasks"))) {
             // Means that no information has changed
             return;
         } else {
@@ -332,6 +339,22 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
         String selection = "task_id=?";
         String[] selectionArgs = {String.valueOf(taskId)};
         getActivity().getContentResolver().update(DataProvider.TASKS_URI, values, selection, selectionArgs);
+
+        if(noteCreated) {
+            ContentValues noteValues = new ContentValues();
+            noteValues.put("task_id", taskId);
+            noteValues.put("note", descriptiveText);
+            getActivity().getContentResolver().insert(DataProvider.NOTES_URI, noteValues);
+
+            ContentValues hasNoteValue = new ContentValues();
+            hasNoteValue.put("has_note", 1);
+            getActivity().getContentResolver().update(DataProvider.TASKS_URI, hasNoteValue, selection, selectionArgs);
+        }
+        if(noteEdited) {
+            ContentValues noteValues = new ContentValues();
+            noteValues.put("note", descriptiveText);
+            getActivity().getContentResolver().update(DataProvider.NOTES_URI, noteValues, selection, selectionArgs);
+        }
     }
 
     private void saveSubtasksData() {
@@ -360,7 +383,14 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
     }
 
     private String getNotesForTask() {
-        return null;
+        String selection = "task_id=?";
+        String[] selectionArgs = {String.valueOf(taskId)};
+        String[] projection = {"note"};
+        Cursor cursor = getActivity().getContentResolver().query(DataProvider.NOTES_URI, projection,
+                selection, selectionArgs, null);
+        cursor.moveToFirst();
+
+        return cursor.getString(0);
     }
 
     private void deleteSubtasksListBeforeSave() {

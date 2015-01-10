@@ -139,10 +139,13 @@ public class DataProvider extends ContentProvider {
                 qb.setTables(TABLE_SUBTASKS);
                 cursor = qb.query(db.getReadableDatabase(), projection, selection, selectionArgs, null, null, sort);
                 return cursor;
+            case 3:
+                qb.setTables(TABLE_NOTES);
+                cursor = qb.query(db.getReadableDatabase(), projection, selection, selectionArgs, null, null, sort);
+                return cursor;
             default:
                 // Do nothing
         }
-        cursor.setNotificationUri(getContext().getContentResolver(), uri);
         throw new SQLException("The data being requested is not valid");
     }
 
@@ -159,6 +162,10 @@ public class DataProvider extends ContentProvider {
         switch (match) {
             case TASKS_TABLE:
                 rowId = db.getWritableDatabase().insert(TABLE_TASKS, null, contentValues);
+                if(rowId > 0) {
+                    insertedPosition = ContentUris.withAppendedId(uri, rowId);
+                    getContext().getContentResolver().notifyChange(insertedPosition, null);
+                }
                 break;
             case SUBTASKS_TABLE:
                 rowId = db.getWritableDatabase().insert(TABLE_SUBTASKS, null, contentValues);
@@ -171,9 +178,6 @@ public class DataProvider extends ContentProvider {
         }
         if(rowId <= 0) {
             throw new SQLException("Error in writing to database!!");
-        } else if(rowId > 0) {
-            insertedPosition = ContentUris.withAppendedId(uri, rowId);
-            getContext().getContentResolver().notifyChange(insertedPosition, null);
         }
         return insertedPosition;
     }
@@ -221,8 +225,6 @@ public class DataProvider extends ContentProvider {
         }
         if(count <= 0) {
             Log.v(TAG, "No rows were modified!!");
-        } else {
-            getContext().getContentResolver().notifyChange(uri, null);
         }
         return count;
     }
