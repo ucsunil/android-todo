@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import com.android.application.GlobalData;
 import com.android.application.R;
-import com.android.application.adapters.DeleteTasksListAdapter;
+import com.android.application.adapters.EditTasksListAdapter;
 import com.android.application.datamodels.Task;
 import com.android.application.storage.DataProvider;
 
@@ -27,7 +27,7 @@ import java.util.List;
 public class TasksDeleteFragment extends Fragment {
 
     ListView tasksList;
-    DeleteTasksListAdapter adapter;
+    EditTasksListAdapter adapter;
     List<Task> tasks;
 
     public static TasksDeleteFragment newInstance() {
@@ -40,7 +40,7 @@ public class TasksDeleteFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         tasks = new ArrayList<Task>();
-        adapter = new DeleteTasksListAdapter(getActivity(), tasks);
+        adapter = new EditTasksListAdapter(getActivity(), tasks);
         initializeAdapter();
     }
 

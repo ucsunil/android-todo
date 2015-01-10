@@ -40,8 +40,6 @@ public class TaskAlertService extends Service {
         registerReceiver(taskNotificationReceiver, new IntentFilter(GlobalData.FIVE_MINUTE_BROADCAST));
         registerReceiver(taskNotificationReceiver, new IntentFilter(GlobalData.NOW_BROADCAST));
 
-        MonitorThread thread = new MonitorThread();
-        thread.start();
     }
 
     @Override

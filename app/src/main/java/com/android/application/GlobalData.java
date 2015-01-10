@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.android.application.receivers.PollReceiver;
@@ -36,6 +37,7 @@ public class GlobalData extends Application {
             "not be able to edit it in the future.";
     public static final String THIRTY_MINUTE_BROADCAST = "Thirty minutes to task";
     public static final String FIFTEEN_MINUTE_BROADCAST = "Fifteen minutes to task";
+    public static final String TEN_MINUTE_BROADCAST = "Ten minutes to task";
     public static final String FIVE_MINUTE_BROADCAST = "Five minutes to task";
     public static final String NOW_BROADCAST = "Task starts now";
 
@@ -48,11 +50,10 @@ public class GlobalData extends Application {
         Intent intent = new Intent(getApplicationContext(), TaskAlertService.class);
         startService(intent);
 
-        // Verify if this is the first time starting the app to ensure that the alarms are
-        // scheduled only once
-        if(hasAppRunBefore(getApplicationContext())) {
-            PollReceiver.scheduleAlarms(getApplicationContext());
-        }
+        // This schedules the delete task alarms
+        PollReceiver.scheduleDeleteTaskAlarm(getApplicationContext());
+
+
     }
 
     /**

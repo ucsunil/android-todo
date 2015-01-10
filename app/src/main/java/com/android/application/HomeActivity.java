@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.android.application.fragments.HomeFragment;
 import com.android.application.services.TaskAlertService;
@@ -27,6 +28,15 @@ public class HomeActivity extends Activity {
         }
         if(!homeFragment.isVisible()) {
             getFragmentManager().beginTransaction().replace(R.id.content, homeFragment).commit();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(getFragmentManager().getBackStackEntryCount() > 0) {
+            getFragmentManager().popBackStackImmediate();
+        } else {
+            super.onBackPressed();
         }
     }
 

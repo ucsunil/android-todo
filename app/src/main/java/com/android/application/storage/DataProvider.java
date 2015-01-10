@@ -7,12 +7,16 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.OperationApplicationException;
 import android.content.UriMatcher;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Handler;
 import android.util.Log;
+
+import com.android.application.helpers.DataProviderObserver;
 
 import java.util.ArrayList;
 
@@ -110,9 +114,13 @@ public class DataProvider extends ContentProvider {
         MATCHER.addURI(AUTHORITY, "notes/note", CODE_NOTE);
     }
 
+    DataProviderObserver observer;
+
     @Override
     public boolean onCreate() {
         db = new DatabaseHelper(getContext());
+        observer = new DataProviderObserver(getContext(), new Handler());
+        getContext().getContentResolver().registerContentObserver(TASKS_URI, true, observer);
 
         return ((db == null) ? false : true);
     }

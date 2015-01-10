@@ -19,12 +19,12 @@ import java.util.List;
  *
  * Created by Sunil on 10/17/14.
  */
-public class DeleteTasksListAdapter extends BaseAdapter {
+public class EditTasksListAdapter extends BaseAdapter {
 
     private Context context;
     private List<Task> tasks;
 
-    public DeleteTasksListAdapter(Context context, List<Task> tasks) {
+    public EditTasksListAdapter(Context context, List<Task> tasks) {
         this.context = context;
         this.tasks = tasks;
     }

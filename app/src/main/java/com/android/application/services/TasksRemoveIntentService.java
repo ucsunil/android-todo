@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.os.RemoteException;
+import android.util.Log;
 
 import com.android.application.GlobalData;
 import com.android.application.storage.DataProvider;

@@ -24,9 +24,7 @@ public class TaskNotificationReceiver extends BroadcastReceiver {
     private TaskStackBuilder stackBuilder;
     Intent homeIntent, taskListIntent, taskIntent;
     private PendingIntent pendingIntent;
-    private final String toDo_thirty = "Due in 30 minutes: ";
-    private final String toDo_fifteen = "Due in 15 minutes: ";
-    private final String toDo_five = "Due in 5 minutes: ";
+    private final String toDo_ten = "Due in 10 minutes: ";
     private final String toDo_now = "Due now: ";
 
     @Override
@@ -37,16 +35,9 @@ public class TaskNotificationReceiver extends BroadcastReceiver {
         pendingIntent = setupTaskStackBuilder(intent);
         notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         String action = intent.getAction();
-        if(action.equals(GlobalData.THIRTY_MINUTE_BROADCAST)) {
-            Log.d("BR", "Thirty minute call");
-            Task task = intent.getParcelableExtra("task");
-            thirtyMinuteAlert(task);
-        } else if(action.equals(GlobalData.FIFTEEN_MINUTE_BROADCAST)) {
+        if(action.equals(GlobalData.TEN_MINUTE_BROADCAST)) {
             Task  task = intent.getParcelableExtra("task");
-            fifteenMinuteAlert(task);
-        } else if(action.equals(GlobalData.FIVE_MINUTE_BROADCAST)) {
-            Task task = intent.getParcelableExtra("task");
-            fiveMinuteAlert(task);
+            tenMinuteAlert(task);
         } else if(action.equals(GlobalData.NOW_BROADCAST)) {
             Task task = intent.getParcelableExtra("task");
             nowAlert(task);
@@ -57,7 +48,7 @@ public class TaskNotificationReceiver extends BroadcastReceiver {
 
     /**
      * This method sets up the back stack for the activities that should exist when the
-     * ViewActivity is started from the notification and return the PendingIntent
+     * ViewActivity is started from the notification and returns the PendingIntent
      * obtained from this stack builder as the result.
      */
     private PendingIntent setupTaskStackBuilder(Intent intent) {
@@ -90,31 +81,13 @@ public class TaskNotificationReceiver extends BroadcastReceiver {
         return pendingIntent;
     }
 
-    private void thirtyMinuteAlert(Task task) {
-        Log.d("BR", "Thirty minute notification");
+    private void tenMinuteAlert(Task task) {
         Notification.Builder notification = new Notification.Builder(context)
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.perm_group_system_clock)
-                .setContentTitle(toDo_thirty + task.getTask())
-                .setContentText(task.getDescription());
-        notificationManager.notify(0, notification.build());
-    }
-
-    private void fifteenMinuteAlert(Task task) {
-        Notification.Builder notification = new Notification.Builder(context)
-                .setContentIntent(pendingIntent)
-                .setSmallIcon(R.drawable.perm_group_system_clock)
-                .setContentTitle(toDo_fifteen + task.getTask())
-                .setContentText(task.getDescription());
-        notificationManager.notify(0, notification.build());
-    }
-
-    private void fiveMinuteAlert(Task task) {
-        Notification.Builder notification = new Notification.Builder(context)
-                .setContentIntent(pendingIntent)
-                .setSmallIcon(R.drawable.perm_group_system_clock)
-                .setContentTitle(toDo_five + task.getTask())
-                .setContentText(task.getDescription());
+                .setContentTitle(toDo_ten + task.getTask())
+                .setContentText(task.getDescription())
+                .setAutoCancel(true);
         notificationManager.notify(0, notification.build());
     }
 
@@ -123,7 +96,8 @@ public class TaskNotificationReceiver extends BroadcastReceiver {
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.perm_group_system_clock)
                 .setContentTitle(toDo_now + task.getTask())
-                .setContentText(task.getDescription());
+                .setContentText(task.getDescription())
+                .setAutoCancel(true);
         notificationManager.notify(0, notification.build());
     }
 }

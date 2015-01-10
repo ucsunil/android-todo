@@ -37,7 +37,6 @@ public class TasksDisplayActivity extends Activity implements
     TaskTreeAdapter taskTreeAdapter;
     ExpandableListView tasksTree;
     private int lastExpandedGroupPosition = -1;
-    DataProviderObserver observer;
 
     private int positionBeingViewed = -1;
     private int taskIdPositionBeingViewed = -1;
@@ -55,14 +54,12 @@ public class TasksDisplayActivity extends Activity implements
         tasks = new ArrayList<Task>();
         taskTreeAdapter = new TaskTreeAdapter(this, tasks);
         tasksTree.setAdapter(taskTreeAdapter);
-        observer = new DataProviderObserver(this, new Handler());
         tasksTree.setOnChildClickListener(this);
         tasksTree.setOnGroupClickListener(this);
         tasksTree.setOnGroupExpandListener(this);
         tasksTree.setOnGroupCollapseListener(this);
         tasksTree.setOnItemLongClickListener(this);
 
-        getContentResolver().registerContentObserver(DataProvider.TASKS_URI, true, observer);
         initializeAdapter();
     }
 

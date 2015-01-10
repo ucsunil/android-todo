@@ -67,7 +67,9 @@ public class HomeFragment extends Fragment {
             createTaskFragment = CreateTaskFragment.newInstance();
         }
         if(!createTaskFragment.isVisible()) {
-            getFragmentManager().beginTransaction().replace(R.id.content, createTaskFragment).commit();
+            getFragmentManager().beginTransaction().replace(R.id.content, createTaskFragment)
+                    .addToBackStack(null).commit();
+
         }
     }
 
@@ -76,11 +78,8 @@ public class HomeFragment extends Fragment {
             editTaskListFragment = EditTasksListFragment.newInstance();
         }
         if(!editTaskListFragment.isVisible()) {
-            getFragmentManager().beginTransaction().replace(R.id.content, editTaskListFragment).commit();
+            getFragmentManager().beginTransaction().replace(R.id.content, editTaskListFragment)
+                    .addToBackStack(null).commit();
         }
     }
-
-
-
-
 }

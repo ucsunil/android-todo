@@ -274,7 +274,6 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
             String rowId = uri.getLastPathSegment();
             saveNote(Integer.valueOf(rowId));
         }
-        Log.i("TAG", uri.toString());
     }
 
     private void saveNote(int taskId) {
@@ -309,4 +308,5 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
             getFragmentManager().beginTransaction().replace(R.id.content, homeFragment).commit();
         }
     }
+
 }
