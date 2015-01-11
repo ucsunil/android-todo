@@ -45,15 +45,6 @@ public class DataProvider extends ContentProvider {
     private static final int SUBTASKS_TABLE = 2;
     private static final int NOTES_TABLE = 3;
 
-    // Columns in table "tasks"
-    private static final String TASK_ID = "task_id";
-    private static final String DATE = "date";
-    private static final String TASK = "task";
-    private static final String HAS_NOTE = "has_note";
-    private static final String SUBTASKS = "subtasks";
-    private static final String TASK_STATUS = "task_status";
-    private static final String TASK_DESCRIPTION = "description";
-
     private static final int CODE_TASK_ID = 11;
     private static final int CODE_DATE = 12;
     private static final int CODE_TASK = 13;
@@ -62,23 +53,12 @@ public class DataProvider extends ContentProvider {
     private static final int CODE_TASK_STATUS = 16;
     private static final int CODE_TASK_DESCRIPTION = 17;
 
-    // Columns in table "subtasks"
-    private static final String SUBTASK_ID = "subtask_id";
-    private static final String SUBTASK = "subtask";
-    private static final String SUBTASK_HAS_NOTE = "subtask_has_note";
-    private static final String SUBTASK_STATUS = "subtask_status";
-    private static final String SUBTASK_DESCRIPTION = "subtask_description";
-
     private static final int CODE_SUBTASK_ID = 21;
     private static final int CODE_SUBTASK_TASK_ID = 22;
     private static final int CODE_SUBTASK = 23;
     private static final int CODE_SUBTASK_HAS_NOTE = 24;
     private static final int CODE_SUBTASK_STATUS = 25;
     private static final int CODE_SUBTASK_DESCRIPTION = 26;
-
-    // Columns in table "notes"
-    private static final String NOTE_ID = "note_id";
-    private static final String NOTE = "note";
 
     private static final int CODE_NOTE_ID = 31;
     private static final int CODE_NOTE_TASK_ID = 32;

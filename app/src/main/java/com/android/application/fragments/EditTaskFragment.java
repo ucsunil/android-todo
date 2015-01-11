@@ -43,8 +43,7 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
     Bundle notesBundle, taskBundle;
     private int taskId = -1;
     private int EDITED_CODE = 5;
-    private final int NOTE_EDITED_CODE = 6;
-    private boolean noteCreated, noteEdited;
+    private boolean noteCreated, noteEdited, noteDeleted;
     String descriptiveText;
 
     AddSubtaskFragment addSubtaskFragment;
@@ -170,8 +169,10 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
                 boolean hasNote = notesBundle.getBoolean("noteFlag");
                 if(hasNote) {
                     noteFlag = true;
-                    noteCreated = true;
+                    noteCreated = notesBundle.getBoolean("noteCreated");
                     descriptiveText = notesBundle.getString("note");
+                    noteEdited = notesBundle.getBoolean("noteEdited");
+                    noteDeleted = notesBundle.getBoolean("noteDeleted");
                 } else {
                     noteFlag = false;
                 }
@@ -292,7 +293,7 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
         // Verify that the data actually changed before updating the database record
         if(date.equals(taskBundle.getString("date")) && time.equals(taskBundle.getString("time"))
                 && task.equals(taskBundle.getString("task")) && taskDescription.equals(taskBundle.getString("description"))
-                && (noteCreated == false) && (noteEdited == false)
+                && (noteCreated == false) && (noteEdited == false) && (noteDeleted == false)
                 && (completed == taskBundle.getBoolean("task_status")) && (subtasksFlag == taskBundle.getBoolean("subtasks"))) {
             // Means that no information has changed
             return;
@@ -317,7 +318,7 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
         }
         values.put("task", task);
         values.put("description", taskDescription);
-        if(noteFlag) {
+        if(noteFlag && !noteDeleted) {
             values.put("has_note", 1);
         }  else {
             values.put("has_note", 0);
@@ -345,15 +346,14 @@ public class EditTaskFragment extends Fragment implements View.OnClickListener {
             noteValues.put("task_id", taskId);
             noteValues.put("note", descriptiveText);
             getActivity().getContentResolver().insert(DataProvider.NOTES_URI, noteValues);
-
-            ContentValues hasNoteValue = new ContentValues();
-            hasNoteValue.put("has_note", 1);
-            getActivity().getContentResolver().update(DataProvider.TASKS_URI, hasNoteValue, selection, selectionArgs);
         }
         if(noteEdited) {
             ContentValues noteValues = new ContentValues();
             noteValues.put("note", descriptiveText);
             getActivity().getContentResolver().update(DataProvider.NOTES_URI, noteValues, selection, selectionArgs);
+        }
+        if(noteDeleted) {
+            getActivity().getContentResolver().delete(DataProvider.NOTES_URI, selection, selectionArgs);
         }
     }
 

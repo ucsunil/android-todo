@@ -24,6 +24,7 @@ public class NoteFragment extends DialogFragment implements View.OnClickListener
     private EditText descriptiveNote;
     private Button save, discard;
     private final int NOTE_CODE = 3;
+    private boolean noteCreated, noteEdited, noteDeleted;
 
 
     public static NoteFragment getFragment(Bundle bundle) {
@@ -79,9 +80,29 @@ public class NoteFragment extends DialogFragment implements View.OnClickListener
     @Override
     public void onClick(View view) {
         if(view.getId() == R.id.save) {
-            if(!TextUtils.isEmpty(descriptiveNote.getText().toString())) {
+            if(!TextUtils.isEmpty(descriptiveNote.getText().toString()) && this.getArguments() == null) {
+                // Means that no note existed and now a note was created
+                noteCreated = true;
                 returnResult();
-            } else {
+            } else if(this.getArguments() != null) {
+                // Means that a note was already there
+                // So it needs to be found whether this note was modified
+                if(TextUtils.isEmpty(descriptiveNote.getText().toString())) {
+                    // This means that all the text in the note were deleted
+                    noteDeleted = true;
+                    returnResult();
+                } else if(descriptiveNote.getText().toString().equals(this.getArguments().getString("notes"))) {
+                    // Means that the note was not modified
+                    noteEdited = false;
+                    returnResult();
+                } else if(!descriptiveNote.getText().toString().equals(this.getArguments().getString("notes"))) {
+                    // Means that the note was modified
+                    noteEdited = true;
+                    returnResult();
+                }
+            } else if(TextUtils.isEmpty(descriptiveNote.getText().toString()) && this.getArguments() == null) {
+                // Means that the user did not create a note and there was
+                // not note attached to this task
                 returnNoNoteResult();
             }
             this.dismiss();
@@ -114,6 +135,9 @@ public class NoteFragment extends DialogFragment implements View.OnClickListener
         Intent intent = new Intent();
         Bundle bundle = new Bundle();
         bundle.putBoolean("noteFlag", true);
+        bundle.putBoolean("noteCreated", noteCreated);
+        bundle.putBoolean("noteEdited", noteEdited);
+        bundle.putBoolean("noteDeleted", noteDeleted);
         bundle.putString("note", note);
         intent.putExtras(bundle);
         getTargetFragment().onActivityResult(getTargetRequestCode(), NOTE_CODE, intent);
